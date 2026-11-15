@@ -9,7 +9,10 @@
 //! branching on up to 8 unreliable candidates), 'maxpscost' or 'mostfractional'. When the
 //! objective can only take integer values, nodes whose bound rounds up to the incumbent are
 //! pruned. A rounding heuristic tries the rounded LP point at every node; x0, if integer
-//! feasible, is the first incumbent. No presolve, and cuts only at the root.
+//! feasible, is the first incumbent. Bounds of integer variables are tightened by domain
+//! propagation (at the root and in every child) and by reduced-cost fixing (in each subtree, and
+//! globally from the root LP whenever the incumbent improves). No presolve, and cuts only at the
+//! root.
 //!
 //! exitflag: 1 optimal (gap within tolerance), 2 stopped with an integer feasible point, 0
 //! stopped without one, -1 stopped by an output function before a feasible point, -2
@@ -17,7 +20,9 @@
 //!
 //! References: A. H. Land and A. G. Doig (1960), "An automatic method of solving discrete
 //! programming problems", Econometrica 28; L. A. Wolsey, Integer Programming (1998), Ch. 7-8;
-//! T. Achterberg, T. Koch and A. Martin (2005), "Branching rules revisited", Oper. Res. Lett. 33.
+//! T. Achterberg, T. Koch and A. Martin (2005), "Branching rules revisited", Oper. Res. Lett. 33;
+//! T. Achterberg (2007), "Constraint Integer Programming", PhD thesis, TU Berlin (Ch. 7, domain
+//! propagation; Ch. 10, reduced-cost fixing).
 //! Clean room: no MathWorks code.
 
 use super::simplex::{self, Basis, Rows, Solution, Status};
@@ -85,9 +90,16 @@ fn feasible(x: &[f64], a: &[Vec<f64>], b: &[f64], aeq: &[Vec<f64>], beq: &[f64],
         && aeq.iter().zip(beq).all(|(r, b)| (dot(r, x) - b).abs() <= ctol * b.abs().max(1.0))
 }
 
-/// LP relaxation of a node, warm-started from `basis`: the clamped point and the optimal basis,
-/// or None when infeasible (or on numerical failure).
-fn node_lp(lp: &Lp, lb: &[f64], ub: &[f64], basis: &Basis) -> Option<(Vec<f64>, Basis)> {
+/// Optimal LP relaxation of a node: the clamped point, the basis and the reduced costs of x.
+struct NodeLp {
+    x: Vec<f64>,
+    basis: Basis,
+    d: Vec<f64>,
+}
+
+/// LP relaxation of a node, warm-started from `basis`; None when infeasible (or on numerical
+/// failure).
+fn node_lp(lp: &Lp, lb: &[f64], ub: &[f64], basis: &Basis) -> Option<NodeLp> {
     if lb.iter().zip(ub).any(|(l, u)| *l > u + 1e-9) {
         return None;
     }
@@ -95,8 +107,101 @@ fn node_lp(lp: &Lp, lb: &[f64], ub: &[f64], basis: &Basis) -> Option<(Vec<f64>, 
     if s.status != Status::Optimal {
         return None;
     }
+    Some(clamped(s, lb, ub, lp.n))
+}
+
+fn clamped(s: Solution, lb: &[f64], ub: &[f64], n: usize) -> NodeLp {
     let x = s.x.iter().zip(lb.iter().zip(ub)).map(|(x, (l, u))| x.max(*l).min(*u)).collect();
-    Some((x, s.basis))
+    NodeLp { x, d: s.d[..n].to_vec(), basis: s.basis }
+}
+
+/// Domain propagation: tightens the bounds of integer variables from the activity bounds of every
+/// row (a'x <= b, and both directions of each equality). False when a row cannot be satisfied
+/// within the bounds, i.e. the node is infeasible.
+fn propagate(lp: &Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64]) -> bool {
+    let rows = lp.a.iter().zip(&lp.b).map(|(r, b)| (r, *b, 1.0)).chain(lp.aeq.iter().zip(&lp.beq).flat_map(|(r, b)| [(r, *b, 1.0), (r, *b, -1.0)]));
+    let rows: Vec<(&Vec<f64>, f64, f64)> = rows.collect();
+    for _pass in 0..10 {
+        let mut changed = false;
+        for &(row, b, sg) in &rows {
+            let b = sg * b;
+            // minimum activity of sg*row over the box: finite part and number of infinite terms
+            let (mut fin, mut ninf, mut jinf) = (0.0, 0usize, usize::MAX);
+            for (j, &a) in row.iter().enumerate() {
+                let a = sg * a;
+                if a == 0.0 {
+                    continue;
+                }
+                let bound = if a > 0.0 { lb[j] } else { ub[j] };
+                if bound.is_finite() {
+                    fin += a * bound;
+                } else {
+                    ninf += 1;
+                    jinf = j;
+                }
+            }
+            if ninf == 0 && fin > b + 1e-6 * b.abs().max(1.0) {
+                return false;
+            }
+            if ninf > 1 {
+                continue;
+            }
+            for (j, &a) in row.iter().enumerate() {
+                let a = sg * a;
+                if a == 0.0 || !isint[j] {
+                    continue;
+                }
+                // activity of the other terms
+                let rest = if ninf == 1 {
+                    if j != jinf {
+                        continue;
+                    }
+                    fin
+                } else {
+                    fin - a * if a > 0.0 { lb[j] } else { ub[j] }
+                };
+                let lim = (b - rest) / a;
+                if a > 0.0 {
+                    let nu = (lim + 1e-6).floor();
+                    if nu < ub[j] {
+                        ub[j] = nu;
+                        changed = true;
+                    }
+                } else {
+                    let nl = (lim - 1e-6).ceil();
+                    if nl > lb[j] {
+                        lb[j] = nl;
+                        changed = true;
+                    }
+                }
+                if lb[j] > ub[j] {
+                    return false;
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    true
+}
+
+/// Reduced-cost fixing: with LP value z and reduced costs d, an integer variable at a bound can
+/// move at most `allow / |d_j|` before the LP bound exceeds what an improving solution allows.
+fn rc_fix(isint: &[bool], lb: &mut [f64], ub: &mut [f64], stat: &[i8], d: &[f64], allow: f64) {
+    if !allow.is_finite() || allow < 0.0 {
+        return;
+    }
+    for j in 0..d.len() {
+        if !isint[j] || !lb[j].is_finite() || !ub[j].is_finite() {
+            continue;
+        }
+        if stat[j] == -1 && d[j] > 1e-9 {
+            ub[j] = ub[j].min(lb[j] + (allow / d[j] + 1e-9).floor());
+        } else if stat[j] == 1 && d[j] < -1e-9 {
+            lb[j] = lb[j].max(ub[j] - (allow / -d[j] + 1e-9).floor());
+        }
+    }
 }
 
 /// Gomory mixed-integer cuts from the rows of the optimal tableau whose basic variable is integer
@@ -341,7 +446,13 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
         let v = finish(it, &mut output, None, -2.0, "No feasible solution found: lb > ub after rounding the integer bounds.".into());
         return ret(v);
     }
-    let mut root = lp.solve(&lb, &ub, None);
+    // bounds used for the search; lb and ub stay the user's (rounded) bounds for the final checks
+    let (mut glb, mut gub) = (lb.clone(), ub.clone());
+    if !propagate(&lp, &isint, &mut glb, &mut gub) {
+        let v = finish(it, &mut output, None, -2.0, "No feasible solution found: bound propagation proves the problem infeasible.".into());
+        return ret(v);
+    }
+    let mut root = lp.solve(&glb, &gub, None);
     match root.status {
         Status::Infeasible => {
             let v = finish(it, &mut output, None, -2.0, "No feasible solution found: the LP relaxation is infeasible.".into());
@@ -383,7 +494,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
         }
         lp.rebuild();
         let fold = lp.obj(&root.x);
-        let s2 = lp.solve(&lb, &ub, Some(Basis { b: bs, stat: st }));
+        let s2 = lp.solve(&glb, &gub, Some(Basis { b: bs, stat: st }));
         if s2.status != Status::Optimal {
             lp.a.truncate(ma_old); // numerical trouble: drop the round
             lp.b.truncate(ma_old);
@@ -409,8 +520,16 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
         )));
     }
 
-    let rootx: Vec<f64> = root.x.clone();
-    let mut nodes = vec![Node { lb: lb.clone(), ub: ub.clone(), bound: lp.obj(&rootx), depth: 0, var: usize::MAX, dir: 0, dist: 0.0, basis: root.basis.clone() }];
+    let rootz = lp.obj(&root.x);
+    let rootlp_sol = clamped(root, &glb, &gub, n);
+    // improving solutions must have f <= u - 1 when the objective only takes integer values
+    let allowance = |u: f64, z: f64| if objint { u - 1.0 + 1e-6 - z } else { u - z };
+    let mut rc_u = u; // incumbent value the global bounds were last fixed with
+    if u.is_finite() {
+        rc_fix(&isint, &mut glb, &mut gub, &rootlp_sol.basis.stat, &rootlp_sol.d, allowance(u, rootz));
+    }
+    let mut nodes = vec![Node { lb: glb.clone(), ub: gub.clone(), bound: rootz, depth: 0, var: usize::MAX, dir: 0, dist: 0.0, basis: rootlp_sol.basis.clone() }];
+    let rootlp_sol = Some(rootlp_sol);
     let mut pc = vec![[0.0f64; 2]; n];
     let mut pcn = vec![[0usize; 2]; n];
     let mut nnodes = 0usize;
@@ -431,11 +550,23 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
         } else {
             argbest(nodes.iter().map(|nd| nd.bound - 1e-9 * nd.depth as f64), false)
         };
-        let node = nodes.swap_remove(k);
-        if !prune(node.bound, u, agap, rgap, objint) {
-            let solved = if nnodes == 0 { Some((rootx.clone(), root.basis.clone())) } else { node_lp(&lp, &node.lb, &node.ub, &node.basis) };
+        let mut node = nodes.swap_remove(k);
+        // global reduced-cost fixing from the root LP whenever the incumbent improved
+        if u < rc_u {
+            rc_u = u;
+            if let Some(r) = &rootlp_sol {
+                rc_fix(&isint, &mut glb, &mut gub, &r.basis.stat, &r.d, allowance(u, rootz));
+            }
+        }
+        for j in 0..n {
+            node.lb[j] = node.lb[j].max(glb[j]);
+            node.ub[j] = node.ub[j].min(gub[j]);
+        }
+        let empty = node.lb.iter().zip(&node.ub).any(|(l, u)| l > u);
+        if !empty && !prune(node.bound, u, agap, rgap, objint) {
+            let solved = if nnodes == 0 { rootlp_sol.as_ref().map(|r| NodeLp { x: r.x.clone(), basis: r.basis.clone(), d: r.d.clone() }) } else { node_lp(&lp, &node.lb, &node.ub, &node.basis) };
             nnodes += 1;
-            if let Some((xn, nbasis)) = solved {
+            if let Some(NodeLp { x: xn, basis: nbasis, d: nd }) = solved {
                 let fn_ = lp.obj(&xn);
                 if node.var != usize::MAX && node.dist > 0.0 {
                     pc[node.var][node.dir] += (fn_ - node.bound).max(0.0) / node.dist;
@@ -479,8 +610,8 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                                         let mut l2 = node.lb.clone();
                                         l2[vq] = xn[vq].ceil();
                                         let pen = 1e6 * (1.0 + fn_.abs());
-                                        let gd = node_lp(&lp, &node.lb, &u1, &nbasis).map(|(x, _)| (lp.obj(&x) - fn_).max(0.0)).unwrap_or(pen);
-                                        let gu = node_lp(&lp, &l2, &node.ub, &nbasis).map(|(x, _)| (lp.obj(&x) - fn_).max(0.0)).unwrap_or(pen);
+                                        let gd = node_lp(&lp, &node.lb, &u1, &nbasis).map(|r| (lp.obj(&r.x) - fn_).max(0.0)).unwrap_or(pen);
+                                        let gu = node_lp(&lp, &l2, &node.ub, &nbasis).map(|r| (lp.obj(&r.x) - fn_).max(0.0)).unwrap_or(pen);
                                         pc[vq][0] += gd / fl[q].max(1e-9);
                                         pcn[vq][0] += 1;
                                         pc[vq][1] += gu / (1.0 - fl[q]).max(1e-9);
@@ -498,11 +629,16 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                         };
                         let v = frac[pick];
                         let xv = xn[v];
+                        // reduced-cost fixing for the subtree of this node
+                        let (mut sl, mut su) = (node.lb.clone(), node.ub.clone());
+                        if u.is_finite() {
+                            rc_fix(&isint, &mut sl, &mut su, &nbasis.stat, &nd, allowance(u, fn_));
+                        }
                         // down branch, then up branch; the side closer to the LP value is pushed
                         // last, so depth-first search takes it first
                         let order = if xv - xv.floor() >= 0.5 { [1, 0] } else { [0, 1] };
                         for dir in order {
-                            let (mut nl, mut nu) = (node.lb.clone(), node.ub.clone());
+                            let (mut nl, mut nu) = (sl.clone(), su.clone());
                             let dist = if dir == 0 {
                                 nu[v] = xv.floor();
                                 xv - xv.floor()
@@ -510,6 +646,9 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                                 nl[v] = xv.ceil();
                                 xv.ceil() - xv
                             };
+                            if nl[v] > nu[v] || !propagate(&lp, &isint, &mut nl, &mut nu) {
+                                continue; // infeasible child
+                            }
                             nodes.push(Node { lb: nl, ub: nu, bound: fn_, depth: node.depth + 1, var: v, dir, dist, basis: nbasis.clone() });
                         }
                     }
