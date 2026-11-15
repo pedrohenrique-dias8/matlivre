@@ -261,3 +261,28 @@ fn intlinprog_argument_errors() {
     let (_, out) = run("intlinprog([1; 1], 1, [1 1 1], 1)");
     assert!(out.iter().any(|l| l.contains("A must have 2 columns")), "{out:?}");
 }
+
+#[test]
+fn intlinprog_presolve_tightens_big_m() {
+    // Capacitated facility location with big-M rows sum_j x_ij <= M*y_i: presolve bounds x_ij by
+    // the demands and tightens M, so the search needs far fewer nodes for the same optimum.
+    let (it, out) = run(
+        "nf = 9; nc = 22; k = 3;
+         d = mod((1:nc)' * (k + 7), 9) + 3; fc = 40 + mod((1:nf)' * (k + 13), 31);
+         tc = mod((1:nf)' * (1:nc) * (k + 5) + (1:nf)', 17) + 1; n = nf + nf * nc;
+         Aeq = [zeros(nc, nf), kron(eye(nc), ones(1, nf))];
+         A = [-1e4 * eye(nf), kron(ones(1, nc), eye(nf)); zeros(nf, nf), kron(ones(1, nc), eye(nf))];
+         b = [zeros(nf, 1); 0.45 * sum(d) * ones(nf, 1)];
+         lb = zeros(n, 1); lb(nf) = 1; ub = [ones(nf, 1); inf(nf * nc, 1)];
+         o = optimoptions('intlinprog', 'Display', 'off');
+         [x1, f1, e1, o1] = intlinprog([fc; tc(:)], 1:nf, A, b, Aeq, d, lb, ub, [], optimoptions(o, 'IntegerPreprocess', 'none'));
+         [x2, f2, e2, o2] = intlinprog([fc; tc(:)], 1:nf, A, b, Aeq, d, lb, ub, [], o);
+         n1 = o1.numnodes; n2 = o2.numnodes; viol = max([A * x2 - b; abs(Aeq * x2 - d)]);",
+    );
+    no_errors(&out);
+    close(&it, "f1", &[767.0], 1e-9);
+    close(&it, "f2", &[767.0], 1e-9);
+    close(&it, "e2", &[1.0], 0.0);
+    assert!(num(&it, "viol")[0] <= 1e-6);
+    assert!(num(&it, "n2")[0] < num(&it, "n1")[0] / 2.0, "nodes {} vs {}", num(&it, "n2")[0], num(&it, "n1")[0]);
+}

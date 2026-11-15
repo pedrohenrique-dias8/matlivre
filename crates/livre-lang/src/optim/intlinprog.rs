@@ -11,8 +11,10 @@
 //! pruned. A rounding heuristic tries the rounded LP point at every node; x0, if integer
 //! feasible, is the first incumbent. Bounds of integer variables are tightened by domain
 //! propagation (at the root and in every child) and by reduced-cost fixing (in each subtree, and
-//! globally from the root LP whenever the incumbent improves). No presolve, and cuts only at the
-//! root.
+//! globally from the root LP whenever the incumbent improves). Presolve (IntegerPreprocess
+//! 'basic', the default; 'none' keeps only bound propagation) works on rows and bounds: fixed
+//! variables, empty, singleton and redundant rows, continuous and integer bound propagation and
+//! coefficient tightening of binaries. Cuts only at the root.
 //!
 //! exitflag: 1 optimal (gap within tolerance), 2 stopped with an integer feasible point, 0
 //! stopped without one, -1 stopped by an output function before a feasible point, -2
@@ -119,6 +121,13 @@ fn clamped(s: Solution, lb: &[f64], ub: &[f64], n: usize) -> NodeLp {
 /// row (a'x <= b, and both directions of each equality). False when a row cannot be satisfied
 /// within the bounds, i.e. the node is infeasible.
 fn propagate(lp: &Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64]) -> bool {
+    propagate_ext(lp, isint, lb, ub, false)
+}
+
+/// Domain propagation; with `continuous`, bounds of continuous variables are tightened too (in
+/// presolve only: an infinite bound becomes finite, or a finite one moves by more than 1e-3 of
+/// its size, so the LP does not chase tiny changes).
+fn propagate_ext(lp: &Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64], continuous: bool) -> bool {
     let rows = lp.a.iter().zip(&lp.b).map(|(r, b)| (r, *b, 1.0)).chain(lp.aeq.iter().zip(&lp.beq).flat_map(|(r, b)| [(r, *b, 1.0), (r, *b, -1.0)]));
     let rows: Vec<(&Vec<f64>, f64, f64)> = rows.collect();
     for _pass in 0..10 {
@@ -148,7 +157,7 @@ fn propagate(lp: &Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64]) -> bool {
             }
             for (j, &a) in row.iter().enumerate() {
                 let a = sg * a;
-                if a == 0.0 || !isint[j] {
+                if a == 0.0 || !isint[j] && !continuous {
                     continue;
                 }
                 // activity of the other terms
@@ -161,15 +170,16 @@ fn propagate(lp: &Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64]) -> bool {
                     fin - a * if a > 0.0 { lb[j] } else { ub[j] }
                 };
                 let lim = (b - rest) / a;
+                let worth = |old: f64, new: f64| !old.is_finite() || (old - new).abs() > 1e-3 * (1.0 + old.abs());
                 if a > 0.0 {
-                    let nu = (lim + 1e-6).floor();
-                    if nu < ub[j] {
+                    let nu = if isint[j] { (lim + 1e-6).floor() } else { lim };
+                    if nu < ub[j] && (isint[j] || worth(ub[j], nu)) {
                         ub[j] = nu;
                         changed = true;
                     }
                 } else {
-                    let nl = (lim - 1e-6).ceil();
-                    if nl > lb[j] {
+                    let nl = if isint[j] { (lim - 1e-6).ceil() } else { lim };
+                    if nl > lb[j] && (isint[j] || worth(lb[j], nl)) {
                         lb[j] = nl;
                         changed = true;
                     }
@@ -184,6 +194,133 @@ fn propagate(lp: &Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64]) -> bool {
         }
     }
     true
+}
+
+/// What presolve changed.
+struct Presolved {
+    rows_removed: usize,
+    vars_fixed: usize,
+    coefs_tightened: usize,
+}
+
+/// Presolve on rows and bounds only, so no postsolve is needed: variables keep their indices and
+/// an eliminated variable is fixed by its bounds. Repeated until nothing changes:
+/// - domain propagation;
+/// - fixed variables move into the right-hand side;
+/// - empty rows are checked and dropped, singleton rows become bounds (equalities fix the
+///   variable), rows whose maximum activity cannot exceed b are dropped;
+/// - coefficient tightening of binaries in inequalities (the LP relaxation gets tighter while
+///   the integer points stay the same).
+/// None when the problem is proven infeasible.
+fn presolve(lp: &mut Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64]) -> Option<Presolved> {
+    let n = lp.n;
+    let (rows0, eq0) = (lp.a.len() + lp.aeq.len(), (0..n).filter(|&j| lb[j] == ub[j]).count());
+    let mut coefs = 0usize;
+    let tol = |b: f64| 1e-9 * b.abs().max(1.0);
+    for _pass in 0..20 {
+        if !propagate_ext(lp, isint, lb, ub, true) {
+            return None;
+        }
+        let mut changed = false;
+        // a bound from a single coefficient: a x_j <= v (or = v)
+        let bound = |j: usize, a: f64, v: f64, eq: bool, lb: &mut [f64], ub: &mut [f64]| -> bool {
+            let mut t = v / a;
+            if eq {
+                if isint[j] {
+                    if (t - t.round()).abs() > 1e-9 {
+                        return false;
+                    }
+                    t = t.round();
+                }
+                lb[j] = lb[j].max(t);
+                ub[j] = ub[j].min(t);
+            } else if a > 0.0 {
+                ub[j] = ub[j].min(if isint[j] { (t + 1e-9).floor() } else { t });
+            } else {
+                lb[j] = lb[j].max(if isint[j] { (t - 1e-9).ceil() } else { t });
+            }
+            lb[j] <= ub[j] + 1e-9
+        };
+        for eqrows in [false, true] {
+            let (rows, rhs) = if eqrows { (std::mem::take(&mut lp.aeq), std::mem::take(&mut lp.beq)) } else { (std::mem::take(&mut lp.a), std::mem::take(&mut lp.b)) };
+            let mut keep_r = Vec::new();
+            let mut keep_b = Vec::new();
+            for (mut row, mut b) in rows.into_iter().zip(rhs) {
+                for j in 0..n {
+                    if row[j] != 0.0 && lb[j] == ub[j] {
+                        b -= row[j] * lb[j];
+                        row[j] = 0.0;
+                        changed = true;
+                    }
+                }
+                let act: Vec<usize> = (0..n).filter(|&j| row[j] != 0.0).collect();
+                match act.len() {
+                    0 => {
+                        let ok = if eqrows { b.abs() <= 1e-9 } else { b >= -1e-9 };
+                        if !ok {
+                            return None;
+                        }
+                        changed = true;
+                        continue;
+                    }
+                    1 => {
+                        let j = act[0];
+                        if !bound(j, row[j], b, eqrows, lb, ub) {
+                            return None;
+                        }
+                        changed = true;
+                        continue;
+                    }
+                    _ => {}
+                }
+                if !eqrows {
+                    let maxact: f64 = act.iter().map(|&j| row[j] * if row[j] > 0.0 { ub[j] } else { lb[j] }).sum();
+                    if maxact.is_finite() {
+                        if maxact <= b + tol(b) {
+                            changed = true; // redundant
+                            continue;
+                        }
+                        let mut maxact = maxact;
+                        for &j in &act {
+                            if !(isint[j] && lb[j] == 0.0 && ub[j] == 1.0) {
+                                continue;
+                            }
+                            let a = row[j];
+                            if a > 0.0 && maxact - a < b - tol(b) {
+                                let d = b - (maxact - a);
+                                row[j] -= d;
+                                b -= d;
+                                maxact -= d;
+                                coefs += 1;
+                                changed = true;
+                            } else if a < 0.0 && maxact + a < b - tol(b) {
+                                row[j] = b - maxact;
+                                coefs += 1;
+                                changed = true;
+                            }
+                        }
+                    }
+                }
+                keep_r.push(row);
+                keep_b.push(b);
+            }
+            if eqrows {
+                lp.aeq = keep_r;
+                lp.beq = keep_b;
+            } else {
+                lp.a = keep_r;
+                lp.b = keep_b;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    Some(Presolved {
+        rows_removed: rows0 - lp.a.len() - lp.aeq.len(),
+        vars_fixed: (0..n).filter(|&j| lb[j] == ub[j]).count() - eq0,
+        coefs_tightened: coefs,
+    })
 }
 
 /// Reduced-cost fixing: with LP value z and reduced costs d, an integer variable at a bound can
@@ -385,7 +522,8 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     }
     let mut lp = Lp { n, c: f.data.clone(), a: rowsof(&am, ma), b: bm.data.clone(), aeq: rowsof(&aeqm, me), beq: beqm.data.clone(), cm: Vec::new(), rhs: Vec::new() };
     lp.rebuild();
-    let (a0, b0) = (lp.a.clone(), lp.b.clone()); // original rows, for feasibility checks
+    // original rows, for feasibility checks (presolve and cuts change lp's rows)
+    let (a0, b0, aeq0, beq0) = (lp.a.clone(), lp.b.clone(), lp.aeq.clone(), lp.beq.clone());
 
     let num = |names: &[&str], d: f64| -> R<f64> { getopt(o, names).map(|v| v.scalar()).unwrap_or(Ok(d)) };
     let text = |names: &[&str], d: &str| -> R<String> { getopt(o, names).map(|v| v.text().map(|t| t.to_lowercase())).unwrap_or(Ok(d.to_string())) };
@@ -399,6 +537,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     let brule = text(&["BranchRule", "BranchingRule"], "maxfun")?;
     let nsel = text(&["NodeSelection"], "minobj")?;
     let cutmode = text(&["CutGeneration"], "basic")?;
+    let preprocess = text(&["IntegerPreprocess"], "basic")?;
     let level = display_level(o, Display::Iter)?;
     let mut hooks = OptimHooks::new(o);
     let c = lp.c.clone();
@@ -433,7 +572,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     let mut u = f64::INFINITY;
     let mut xbest: Option<Vec<f64>> = None;
     let mut nfeas = 0usize;
-    if x0m.numel() == n && feasible(&x0m.data, &a0, &b0, &lp.aeq, &lp.beq, &lb, &ub, &intcon, itol, ctol) {
+    if x0m.numel() == n && feasible(&x0m.data, &a0, &b0, &aeq0, &beq0, &lb, &ub, &intcon, itol, ctol) {
         let mut xs = x0m.data.clone();
         for &j in &intcon {
             xs[j] = xs[j].round();
@@ -448,10 +587,16 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     }
     // bounds used for the search; lb and ub stay the user's (rounded) bounds for the final checks
     let (mut glb, mut gub) = (lb.clone(), ub.clone());
-    if !propagate(&lp, &isint, &mut glb, &mut gub) {
-        let v = finish(it, &mut output, None, -2.0, "No feasible solution found: bound propagation proves the problem infeasible.".into());
+    let pre = if preprocess == "none" {
+        propagate(&lp, &isint, &mut glb, &mut gub).then_some(Presolved { rows_removed: 0, vars_fixed: 0, coefs_tightened: 0 })
+    } else {
+        presolve(&mut lp, &isint, &mut glb, &mut gub)
+    };
+    let Some(pre) = pre else {
+        let v = finish(it, &mut output, None, -2.0, "No feasible solution found: presolve proves the problem infeasible.".into());
         return ret(v);
-    }
+    };
+    lp.rebuild();
     let mut root = lp.solve(&glb, &gub, None);
     match root.status {
         Status::Infeasible => {
@@ -514,7 +659,10 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     }
     if level == Display::Iter {
         it.emit(OutputKind::Text(format!(
-            "\nLP relaxation: f = {}; after {ncuts} Gomory cuts: f = {}\n\n    Nodes      Total time (s)   Num int solution   Integer fval     Relative gap (%)\n",
+            "\nPresolve: {} rows removed, {} variables fixed, {} coefficients tightened.\nLP relaxation: f = {}; after {ncuts} cuts: f = {}\n\n    Nodes      Total time (s)   Num int solution   Integer fval     Relative gap (%)\n",
+            pre.rows_removed,
+            pre.vars_fixed,
+            pre.coefs_tightened,
             fmt_g(rootlp),
             fmt_g(lp.obj(&root.x))
         )));
@@ -578,7 +726,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                     for &j in &intcon {
                         xh[j] = xh[j].round();
                     }
-                    if dot(&c, &xh) < u && feasible(&xh, &a0, &b0, &lp.aeq, &lp.beq, &lb, &ub, &intcon, itol, ctol) {
+                    if dot(&c, &xh) < u && feasible(&xh, &a0, &b0, &aeq0, &beq0, &lb, &ub, &intcon, itol, ctol) {
                         u = dot(&c, &xh);
                         xbest = Some(xh.clone());
                         nfeas += 1;
@@ -702,7 +850,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
             for (r, b) in a0.iter().zip(&b0) {
                 v = v.max(dot(r, &xb) - b);
             }
-            for (r, b) in lp.aeq.iter().zip(&lp.beq) {
+            for (r, b) in aeq0.iter().zip(&beq0) {
                 v = v.max((dot(r, &xb) - b).abs());
             }
             for j in 0..n {
