@@ -201,9 +201,12 @@ fn intlinprog_matches_matlab() {
     for ((name, ef, f), (wname, wef, wf)) in got.iter().zip(&want) {
         assert_eq!(name, wname);
         match name.as_str() {
-            // MaxNodes = 1 from x0 = 0: MATLAB's presolve closes the gap at the root (exitflag 1,
-            // f = -309); without presolve the run stops at the limit with the x0 incumbent.
-            "M8_maxnodes" => assert_eq!((*ef, *f), (2.0, Some(0.0))),
+            // MaxNodes = 1 from x0 = 0: MATLAB closes the gap at the root (exitflag 1, f = -309);
+            // here the run stops at the limit with the incumbent of the root dive.
+            "M8_maxnodes" => {
+                let f = f.unwrap();
+                assert!(*ef == 2.0 && f < 0.0 && f >= -309.0, "M8: {ef} {f}");
+            }
             // Stopped at MaxNodes = 2000 with the optimum as incumbent; MATLAB proves it optimal
             // within 1997 nodes.
             "M11_general15" => assert_eq!((*ef, *f), (2.0, *wf)),
@@ -285,4 +288,23 @@ fn intlinprog_presolve_tightens_big_m() {
     close(&it, "e2", &[1.0], 0.0);
     assert!(num(&it, "viol")[0] <= 1e-6);
     assert!(num(&it, "n2")[0] < num(&it, "n1")[0] / 2.0, "nodes {} vs {}", num(&it, "n2")[0], num(&it, "n1")[0]);
+}
+
+#[test]
+fn intlinprog_diving_heuristics_keep_the_optimum() {
+    // Multidimensional 0/1 knapsack: the same optimum with and without diving.
+    let (it, out) = run(
+        "k = 3; m = 3 + k; n = 25 + 5 * k;
+         W = mod((1:m)' * (1:n) * (k + 3) + (1:n) * 7, 41) + 10;
+         c = -(mod((1:n)' * (k + 11), 37) + 20); b = floor(sum(W, 2) / 3);
+         o = optimoptions('intlinprog', 'Display', 'off');
+         [x1, f1, e1] = intlinprog(c, 1:n, W, b, [], [], zeros(n, 1), ones(n, 1), [], optimoptions(o, 'Heuristics', 'none'));
+         [x2, f2, e2] = intlinprog(c, 1:n, W, b, [], [], zeros(n, 1), ones(n, 1), [], o);
+         viol = max(W * x2 - b);",
+    );
+    no_errors(&out);
+    close(&it, "f1", &[-642.0], 1e-12);
+    close(&it, "f2", &[-642.0], 1e-12);
+    close(&it, "e2", &[1.0], 0.0);
+    assert!(num(&it, "viol")[0] <= 1e-9);
 }

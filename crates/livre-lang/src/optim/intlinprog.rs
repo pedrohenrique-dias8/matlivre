@@ -8,8 +8,10 @@
 //! BranchRule 'maxfun' (default here), 'reliability' (pseudocost product rule with strong
 //! branching on up to 8 unreliable candidates), 'maxpscost' or 'mostfractional'. When the
 //! objective can only take integer values, nodes whose bound rounds up to the incumbent are
-//! pruned. A rounding heuristic tries the rounded LP point at every node; x0, if integer
-//! feasible, is the first incumbent. Bounds of integer variables are tightened by domain
+//! pruned. A rounding heuristic tries the rounded LP point at every node, and diving heuristics
+//! (fractional, and guided by the incumbent) run at the root and every 50 nodes within a budget
+//! of LPs (Heuristics 'none' or 'round' keep only the rounding); x0, if integer feasible, is the
+//! first incumbent. Bounds of integer variables are tightened by domain
 //! propagation (at the root and in every child) and by reduced-cost fixing (in each subtree, and
 //! globally from the root LP whenever the incumbent improves). Presolve (IntegerPreprocess
 //! 'basic', the default; 'none' keeps only bound propagation) works on rows and bounds: fixed
@@ -196,6 +198,76 @@ fn propagate_ext(lp: &Lp, isint: &[bool], lb: &mut [f64], ub: &mut [f64], contin
         }
     }
     true
+}
+
+/// Diving heuristic from a node LP: repeatedly fix one fractional integer variable (bound
+/// change), propagate and re-solve the LP warm-started, until the LP point is integral. With a
+/// guide (the incumbent), the variable closest to its incumbent value is rounded toward it
+/// (guided diving); otherwise the least fractional one is rounded to the nearest integer
+/// (fractional diving). A failed direction is retried once in the other direction; the dive stops
+/// when both fail, when the LP value reaches `cutoff`, or after `max_lps` LPs. Returns the
+/// integral LP point (still to be checked against the original rows) and the LPs used.
+#[allow(clippy::too_many_arguments)]
+fn dive(lp: &Lp, isint: &[bool], intcon: &[usize], lb: &[f64], ub: &[f64], start: &NodeLp, guide: Option<&[f64]>, itol: f64, cutoff: f64, max_lps: usize) -> (Option<Vec<f64>>, usize) {
+    let (mut l, mut u) = (lb.to_vec(), ub.to_vec());
+    let mut cur = NodeLp { x: start.x.clone(), basis: start.basis.clone(), d: Vec::new() };
+    let mut lps = 0usize;
+    loop {
+        let frac: Vec<usize> = intcon.iter().copied().filter(|&j| (cur.x[j] - cur.x[j].round()).abs() > itol).collect();
+        if frac.is_empty() {
+            let mut x = cur.x.clone();
+            for &j in intcon {
+                x[j] = x[j].round();
+            }
+            return (Some(x), lps);
+        }
+        if lps >= max_lps {
+            return (None, lps);
+        }
+        // variable and preferred direction (true = up)
+        let (v, up) = match guide {
+            Some(g) => {
+                let k = argbest(frac.iter().map(|&j| -(cur.x[j] - g[j]).abs()), true);
+                let j = frac[k];
+                (j, g[j] > cur.x[j])
+            }
+            None => {
+                let k = argbest(frac.iter().map(|&j| -(cur.x[j] - cur.x[j].round()).abs()), true);
+                let j = frac[k];
+                (j, cur.x[j] - cur.x[j].floor() >= 0.5)
+            }
+        };
+        let mut next = None;
+        for dir in [up, !up] {
+            let (mut nl, mut nu) = (l.clone(), u.clone());
+            if dir {
+                nl[v] = cur.x[v].ceil();
+            } else {
+                nu[v] = cur.x[v].floor();
+            }
+            if nl[v] > nu[v] || !propagate(lp, isint, &mut nl, &mut nu) {
+                continue;
+            }
+            lps += 1;
+            if let Some(r) = node_lp(lp, &nl, &nu, &cur.basis) {
+                if lp.obj(&r.x) < cutoff {
+                    next = Some((r, nl, nu));
+                    break;
+                }
+            }
+            if lps >= max_lps {
+                break;
+            }
+        }
+        match next {
+            Some((r, nl, nu)) => {
+                cur = r;
+                l = nl;
+                u = nu;
+            }
+            None => return (None, lps),
+        }
+    }
 }
 
 /// What presolve changed.
@@ -540,6 +612,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     let nsel = text(&["NodeSelection"], "minobj")?;
     let cutmode = text(&["CutGeneration"], "basic")?;
     let preprocess = text(&["IntegerPreprocess"], "basic")?;
+    let heuristics = text(&["Heuristics"], "basic")?;
     let level = display_level(o, Display::Iter)?;
     let mut hooks = OptimHooks::new(o);
     let c = lp.c.clone();
@@ -698,6 +771,8 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
         }
     }
     let dfs_always = nsel == "mininfeas" || nsel == "depthfirst";
+    let dive_on = heuristics != "none" && heuristics != "round";
+    let (mut ndives, mut dive_lps) = (0usize, 0usize);
     let avg_f = intcon.iter().map(|&j| c[j].abs()).sum::<f64>() / (intcon.len().max(1) as f64) + f64::EPSILON;
     while !nodes.is_empty() && !userstop {
         // depth-first until the first incumbent, best bound afterwards (ties to the deeper node)
@@ -740,6 +815,23 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                         nfeas += 1;
                     }
                     let frac: Vec<usize> = intcon.iter().copied().filter(|&j| (xn[j] - xn[j].round()).abs() > itol).collect();
+                    // diving: at the root, then every 50 nodes while the dives have used at most
+                    // a fifth of the LPs of the search (guided by the incumbent once there is one)
+                    if dive_on && !frac.is_empty() && (nnodes == 1 || nnodes % 50 == 0) && dive_lps <= nnodes / 5 + 50 {
+                        let cutoff = if u.is_finite() { u - if objint { 1.0 - 1e-6 } else { 1e-9 * u.abs().max(1.0) } } else { f64::INFINITY };
+                        let start = NodeLp { x: xn.clone(), basis: nbasis.clone(), d: Vec::new() };
+                        let guided = ndives % 2 == 1 && xbest.is_some();
+                        let (found, used) = dive(&lp, &isint, &intcon, &node.lb, &node.ub, &start, if guided { xbest.as_deref() } else { None }, itol, cutoff, 2 * intcon.len() + 10);
+                        ndives += 1;
+                        dive_lps += used;
+                        if let Some(xd) = found {
+                            if dot(&c, &xd) < u && feasible(&xd, &a0, &b0, &aeq0, &beq0, &lb, &ub, &intcon, itol, ctol) {
+                                u = dot(&c, &xd);
+                                xbest = Some(xd);
+                                nfeas += 1;
+                            }
+                        }
+                    }
                     if frac.is_empty() {
                         if dot(&c, &xh) < u {
                             u = dot(&c, &xh);
