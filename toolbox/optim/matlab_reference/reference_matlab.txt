@@ -1,0 +1,270 @@
+MATLAB 26.2.0.3433840 (R2026b) Update 1   15-Nov-2026 14:09:41
+Toolboxes: Bluetooth Toolbox; Communications Toolbox; Control System Toolbox; Curve Fitting Toolbox; DSP System Toolbox; Database Toolbox; Datafeed Toolbox; Global Optimization Toolbox; MATLAB; MATLAB Coder; MATLAB Copilot; MATLAB Report Generator; MATLAB Test; Model Predictive Control Toolbox; Motor Control Blockset; Optimization Toolbox; Partial Differential Equation Toolbox; Predictive Maintenance Toolbox; RF Toolbox; Robust Control Toolbox; Signal Integrity Toolbox; Signal Processing Toolbox; Simulink; Simulink 3D Animation; Simulink Check; Simulink Coder; Simulink Control Design; Simulink Copilot; Simulink Coverage; Simulink Design Optimization; Simulink Design Verifier; Simulink Desktop Real-Time; Simulink Fault Analyzer; Simulink Report Generator; Simulink Test; Simulink Variant Manager; Statistics and Machine Learning Toolbox; Symbolic Math Toolbox; System Identification Toolbox; Wavelet Toolbox
+
+=================== test_fmincon ===================
+RESULT P1_rosen_disk ef=1 f=0.04567482476 x=[0.786415116 0.617698255] | it=24 fc=84 viol=0.00e+00 fo=2.07e-08 t=0.1805s
+RESULT P2_hs071_fd ef=1 f=17.01402129 x=[1.00000184 4.74299816 3.82115233 1.37940554] | it=8 fc=46 viol=6.19e-11 fo=2.00e-06 t=0.0949s
+LAMBDA P2_hs071 ineqnonlin 0.55229313 eqnonlin 0.16146770 lower [1.08788 5.34331e-07 7.0893e-07 5.27141e-06]
+RESULT P3_hs071_grad ef=1 f=17.01402129 x=[1.00000184 4.74299817 3.82115231 1.37940554] | it=8 fc=10 viol=6.22e-11 fo=2.00e-06 t=0.0564s
+RESULT P4_linear ef=1 f=0.80000002 x=[1.39999999 1.69999998] | it=8 fc=27 viol=0.00e+00 fo=2.00e-08 t=0.0747s
+LAMBDA P4_linear ineqlin [0.8 1.66703e-08 4.99969e-09]
+RESULT P5_bounds ef=1 f=0.04000008 x=[0.7999998 0.639999672] | it=36 fc=120 viol=0.00e+00 fo=8.00e-08 t=0.0550s
+RESULT P6_circle_eq ef=1 f=-2 x=[-1.00000001 -0.999999992] | it=11 fc=40 viol=7.26e-13 fo=3.60e-08 t=0.0505s
+RESULT P7_eq_central ef=1 f=1.156627103 x=[-3.16227766 3.16227766] | it=11 fc=61 viol=0.00e+00 fo=2.00e-10 t=0.0639s
+RESULT P8_matrix_struct ef=1 f=5.386369597 x=[0.229524519 2.39184466 1.39184466 1.98678583] | it=12 fc=65 viol=0.00e+00 fo=4.00e-07 t=0.0498s
+SHAPE P8 [2 2]
+RESULT P9_infeasible ef=0 viol=1
+--- iteration display (P1) ---
+                                            First-order      Norm of                  
+ Iter F-count            f(x)  Feasibility   optimality         step   Wall-Clock Time
+    0       3    1.000000e+00    0.000e+00    2.000e+00                   0.005360 sec
+    1      13    7.753537e-01    0.000e+00    6.250e+00    1.768e-01      0.016126 sec
+    2      18    6.519648e-01    0.000e+00    9.048e+00    1.679e-01      0.022191 sec
+    3      21    5.543209e-01    0.000e+00    8.033e+00    1.203e-01      0.023607 sec
+    4      24    2.985207e-01    0.000e+00    1.790e+00    9.328e-02      0.024096 sec
+    5      27    2.653799e-01    0.000e+00    2.788e+00    5.723e-02      0.024550 sec
+    6      30    1.897216e-01    0.000e+00    2.311e+00    1.147e-01      0.025012 sec
+    7      33    1.513701e-01    0.000e+00    9.706e-01    5.764e-02      0.025468 sec
+    8      36    1.153330e-01    0.000e+00    1.127e+00    8.169e-02      0.025911 sec
+    9      39    1.198058e-01    0.000e+00    1.000e-01    1.522e-02      0.026346 sec
+   10      42    8.910052e-02    0.000e+00    8.378e-01    8.301e-02      0.026966 sec
+   11      45    6.771960e-02    0.000e+00    1.365e+00    7.149e-02      0.027453 sec
+   12      48    6.437664e-02    0.000e+00    1.146e-01    5.701e-03      0.027908 sec
+   13      51    6.329037e-02    0.000e+00    1.883e-02    3.774e-03      0.028359 sec
+   14      54    5.161934e-02    0.000e+00    3.016e-01    4.464e-02      0.028827 sec
+   15      57    4.964194e-02    0.000e+00    7.913e-02    7.894e-03      0.029283 sec
+   16      60    4.955404e-02    0.000e+00    5.462e-03    4.185e-04      0.029717 sec
+   17      63    4.954839e-02    0.000e+00    3.993e-03    2.208e-05      0.030155 sec
+   18      66    4.658289e-02    0.000e+00    1.318e-02    1.255e-02      0.030602 sec
+   19      69    4.647011e-02    0.000e+00    8.006e-04    4.940e-04      0.031087 sec
+   20      72    4.569141e-02    0.000e+00    3.136e-03    3.379e-03      0.031546 sec
+   21      75    4.568281e-02    0.000e+00    6.436e-05    3.974e-05      0.031979 sec
+   22      78    4.568281e-02    0.000e+00    8.000e-06    1.083e-07      0.032416 sec
+   23      81    4.567641e-02    0.000e+00    1.601e-06    2.793e-05      0.032856 sec
+   24      84    4.567482e-02    0.000e+00    2.068e-08    6.916e-06      0.033464 sec
+
+<a href = "matlab: helpview('optim','local_min_found','CSHelpWindow');">Local minimum found that satisfies the constraints</a>.
+
+Optimization completed because the objective function is non-decreasing in 
+<a href = "matlab: helpview('optim','feasible_directions','CSHelpWindow');">feasible directions</a>, to within the value of the <a href = "matlab: helpview('optim','optimality_tolerance_msgcsh','CSHelpWindow');">optimality tolerance</a>,
+and constraints are satisfied to within the value of the <a href = "matlab: helpview('optim','constraint_tolerance','CSHelpWindow');">constraint tolerance</a>.
+
+<<a href = "matlab: createExitMsg({'optimlib:sqpLineSearch:Exit1basic'},{'optimlib:sqpLineSearch:Exit1detailed','2.067875e-08','1.000000e-06','0.000000e+00','1.000000e-06'},true,true);;">stopping criteria details</a>>
+ELAPSED test_fmincon 1.424 s
+
+=================== test_hs ===================
+HS HS6   ef= 1 f=1.088883457e-17 fstar=0 err=1.09e-17 it=8 fc=34 viol=3.3e-09
+HS HS7   ef= 1 f=-1.732050808 fstar=-1.732050808 err=2.00e-11 it=10 fc=41 viol=6.9e-11
+HS HS13  ef= 2 f=1.350629188 fstar=1 err=3.51e-01 it=106 fc=377 viol=0.0e+00
+HS HS26  ef= 1 f=1.541084032e-10 fstar=0 err=1.54e-10 it=20 fc=137 viol=3.9e-10
+HS HS39  ef= 1 f=-1.000000001 fstar=-1 err=8.06e-10 it=12 fc=65 viol=7.9e-10
+HS HS40  ef= 1 f=-0.25 fstar=-0.25 err=1.41e-11 it=6 fc=35 viol=2.3e-11
+HS HS43  ef= 1 f=-43.99999996 fstar=-44 err=4.00e-08 it=12 fc=67 viol=0.0e+00
+HS HS65  ef= 1 f=0.9535288768 fstar=0.9535288567 err=2.01e-08 it=11 fc=49 viol=0.0e+00
+HS HS100 ef= 1 f=680.6300582 fstar=680.6300573 err=8.73e-07 it=15 fc=147 viol=0.0e+00
+TOTAL 0.299 s
+ELAPSED test_hs 0.319 s
+
+=================== test_qp ===================
+RESULT LP1_scipy_doc ef=1 f=-22 x=[10 -3] | it=0 viol=0.0e+00
+RESULT LP2_classic ef=1 f=-36 x=[2 6] | it=0 viol=0.0e+00
+LAMBDA LP2 ineqlin [0 1.5 1]
+RESULT LP3_eq_fixed ef=1 f=6 x=[3 2 1] | it=0 viol=0.0e+00
+RESULT LP4_infeasible ef=-2
+RESULT LP5_unbounded ef=-3
+RESULT LP6_30x20 ef=1 f=-9.533333333 x=[0 0.833333333 0.666666667 1 0] | it=7 viol=2.2e-16
+TIME LP6 0.0068
+RESULT QP1_doc ef=1 f=-8.222222222 x=[0.666666667 1.33333333] | it=4 viol=0.0e+00
+LAMBDA QP1 ineqlin [3.11111 0.444444 9.80876e-12]
+RESULT QP2_10var ef=1 f=-5.337730154 x=[-1 -1 -1 1 0.913834931] | it=6 viol=2.2e-16
+TIME QP2 0.0151
+RESULT QP3_nonconvex ef=2
+RESULT QP4_struct ef=1 f=-5.5 x=[2.56013594e-17 1 2] | it=3 viol=0.0e+00
+RESULT LSQLIN1_bounds ef=1 f=1.824074074 x=[0.5 0.5 0.5 0.5] | it=6 viol=0.0e+00
+RESULT LSQLIN2_lin ef=1 f=3.026431701 x=[0.921806168 0.921806168 -1.37224669 0.528634361] | it=3 viol=4.4e-09
+ELAPSED test_qp 0.319 s
+
+=================== test_fminunc ===================
+RESULT U1_rosen2 ef=1 f=2.833565e-11 err=1.06e-05 it=36 fc=138
+RESULT U2_rosen10 ef=1 f=6.977703e-10 err=3.12e-05 it=75 fc=935
+RESULT U3_rosen2_grad ef=1 f=9.038341e-13 err=1.72e-06 it=36 fc=46
+RESULT U4_beale ef=1 f=2.355079e-12 err=1.60e-06 it=15 fc=48
+RESULT U5_powell_singular ef=1 f=6.389037e-09 err=3.15e-03 it=33 fc=170
+RESULT U6_illcond_matrix ef=1 f=-5.941594e-01 err=4.04e-04 it=30 fc=403
+SHAPE U6 [2 3]
+RESULT U7_unbounded ef=-3 f=-1.24e+20
+ELAPSED test_fminunc 0.123 s
+
+=================== test_nls ===================
+RESULT N1_rosen_lsq ef=1 resnorm=0 x=[1 1] | it=23 fc=72
+RESULT N2_rosen_bound ef=3 resnorm=0.250000001 x=[0.499999999 0.249999894] | it=18 fc=57
+LAMBDA N2 upper [0.999979 0]
+[Warning: You have passed LSQNONLIN options to LSQCURVEFIT. LSQCURVEFIT will use the common options and ignore the LSQNONLIN options that do not apply.
+<a href = "matlab: helpview('optim','convert_options');">To avoid this warning, convert the LSQNONLIN options using OPTIMOPTIONS.</a>] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('optim.options/SolverOptions/convertForSolver', 'C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\SolverOptions.m', 768)" style="font-weight:bold">optim.options/SolverOptions/convertForSolver</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\SolverOptions.m',768,0)">line 768</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('optim.options.internal.prepareOptionsForSolver', 'C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\+internal\prepareOptionsForSolver.m', 49)" style="font-weight:bold">optim.options.internal.prepareOptionsForSolver</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\+internal\prepareOptionsForSolver.m',49,0)">line 49</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('lsqcurvefit', 'C:\Program Files\MATLAB\R2026b\toolbox\shared\optimlib\lsqcurvefit.m', 84)" style="font-weight:bold">lsqcurvefit</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\shared\optimlib\lsqcurvefit.m',84,0)">line 84</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('test_nls', 'C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\test_nls.m', 11)" style="font-weight:bold">test_nls</a> (<a href="matlab: opentoline('C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\test_nls.m',11,0)">line 11</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run', 'C:\Program Files\MATLAB\R2026b\toolbox\matlab\lang\run.m', 100)" style="font-weight:bold">run</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\matlab\lang\run.m',100,0)">line 100</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('record_reference>rr_run', 'C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m', 60)" style="font-weight:bold">record_reference>rr_run</a> (<a href="matlab: opentoline('C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m',60,0)">line 60</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('record_reference', 'C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m', 48)" style="font-weight:bold">record_reference</a> (<a href="matlab: opentoline('C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m',48,0)">line 48</a>)] 
+RESULT N3_expfit ef=1 resnorm=4.763082361e-14 x=[2.49999992 1.30000013 0.400000049] | it=4 fc=20
+[Warning: You have passed LSQNONLIN options to LSQCURVEFIT. LSQCURVEFIT will use the common options and ignore the LSQNONLIN options that do not apply.
+<a href = "matlab: helpview('optim','convert_options');">To avoid this warning, convert the LSQNONLIN options using OPTIMOPTIONS.</a>] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('optim.options/SolverOptions/convertForSolver', 'C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\SolverOptions.m', 768)" style="font-weight:bold">optim.options/SolverOptions/convertForSolver</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\SolverOptions.m',768,0)">line 768</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('optim.options.internal.prepareOptionsForSolver', 'C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\+internal\prepareOptionsForSolver.m', 49)" style="font-weight:bold">optim.options.internal.prepareOptionsForSolver</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\matlab\optimfun\optimfun\+optim\+options\+internal\prepareOptionsForSolver.m',49,0)">line 49</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('lsqcurvefit', 'C:\Program Files\MATLAB\R2026b\toolbox\shared\optimlib\lsqcurvefit.m', 84)" style="font-weight:bold">lsqcurvefit</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\shared\optimlib\lsqcurvefit.m',84,0)">line 84</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('test_nls', 'C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\test_nls.m', 15)" style="font-weight:bold">test_nls</a> (<a href="matlab: opentoline('C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\test_nls.m',15,0)">line 15</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run', 'C:\Program Files\MATLAB\R2026b\toolbox\matlab\lang\run.m', 100)" style="font-weight:bold">run</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026b\toolbox\matlab\lang\run.m',100,0)">line 100</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('record_reference>rr_run', 'C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m', 60)" style="font-weight:bold">record_reference>rr_run</a> (<a href="matlab: opentoline('C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m',60,0)">line 60</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('record_reference', 'C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m', 48)" style="font-weight:bold">record_reference</a> (<a href="matlab: opentoline('C:\Users\Pedro\Downloads\matlivre_optim_toolbox_v7\optimization_toolbox\matlab_reference\record_reference.m',48,0)">line 48</a>)] 
+RESULT N4_lorentz_jac ef=3 resnorm=0.001872314661 x=[2.96148631 1.99872496 0.487946529] | it=7 fc=8
+RESULT N5_brown_dennis ef=3 resnorm=85822.20163 x=[-11.5944323 13.2036277 -0.403440037 0.23677983] | it=248 fc=1245
+RESULT S1_exp2 ef=1 |F|=5.74e-07 x=[0.567143031 0.567143031] | it=10 fc=33
+RESULT S2_powell_badscale ef=1 |F|=2.78e-14 x=[1.09815933e-05 9.10614674] | it=26 fc=75
+RESULT S3_matrix_cuberoot ef=1 |F|=3.66e-10 x=[-0.129148907 1.29032357 0.860215714 1.16117466] | it=11 fc=52
+CHECK S3 [1 2;3 4]
+RESULT S4_noroot ef=-2 x=0 f=1
+RESULT S5_broyden10_jac ef=1 |F|=1.06e-09 x=[-0.570722132 -0.68180695 -0.702210076 -0.70551063] | it=4 fc=5
+ELAPSED test_nls 0.528 s
+
+=================== test_global ===================
+GLOBAL rastrigin2  particleswarm 20/20 (median f 4.03e-11,  1604 evals, 0.19s) | ga 12/20 (median f 8.88e-08,  3688 evals, 0.88s)
+GLOBAL rastrigin5  particleswarm  3/20 (median f 1.99,  6578 evals, 0.50s) | ga 11/20 (median f 5.99e-07,  6316 evals, 1.19s)
+GLOBAL ackley10    particleswarm 20/20 (median f 1.06e-07, 17855 evals, 1.74s) | ga 20/20 (median f 7.34e-05, 48204 evals, 8.57s)
+RESULT pso_hybrid f=0 ef=1 hybridflag=2
+RESULT ga_nonlcon success 16/20
+RESULT ga_nonlcon_hybrid f=0.99870823 x=[1.00065 1.00029] ef=1
+RESULT ga_integer success 20/20
+RESULT ga_mixedint_eq x=[-1 0 5] f=35.6200 ef=1 (optimum x=[1.05 3 -0.05], f=0.2150)
+RESULT ps_rosen f=1.05e-07 x=[0.99968 0.99935] ef=1 fc=11904
+RESULT ps_linear f=0.800000 x=[1.4 1.7] ef=1 (optimum x=[1.4 1.7], f=0.8)
+RESULT ps_nonlcon f=-1.997467 x=[-1.00351 -0.993958] ef=0 (optimum x=[-1 -1], f=-2)
+RESULT multistart f=-1.031628 ef=1 runs=30 distinct minima=5
+RESULT globalsearch f=-1.031628 ef=1 runs=13 distinct minima=4
+RESULT multistart_lsqcurvefit resnorm=1.1e-21 x=[1.5 3;3 0.5] ef=1
+ELAPSED test_global 33.667 s
+
+=================== test_checkgradients ===================
+CHECKGRAD rosen_ok valid=1 maxerr=6.3e-08
+CHECKGRAD rosen_bad valid=0 maxerr=2 size=[2 1]
+CHECKGRAD jacobian_ok valid=1 maxerr=1.4e-08 size=[3 3]
+CHECKGRAD constraints_ok valid=[true true]
+____________________________________________________________
+
+Nonlinear inequality constraint derivatives:
+Maximum relative difference between supplied 
+and finite-difference derivatives = 1.3708e-08.
+
+checkGradients successfully passed.
+____________________________________________________________
+
+____________________________________________________________
+
+Nonlinear equality constraint derivatives:
+Maximum relative difference between supplied 
+and finite-difference derivatives = 1.
+  Supplied derivative element (3,1): 5.00373
+  Finite-difference derivative element (3,1): 10.0075
+
+<a href = "matlab: helpview('optim','checkgradients_failed','CSHelpWindow');">checkGradients failed</a>.
+
+Supplied derivative and finite-difference approximation are
+not within 'Tolerance' (1e-06).
+____________________________________________________________
+
+CHECKGRAD constraints_bad valid=[true false] maxeq=1
+CHECKGRAD matrix_x0 valid=1
+ELAPSED test_checkgradients 0.109 s
+
+=================== test_outputfcn ===================
+OUTFCN fmincon_record ef=1 iterations=24 calls=27 states=[1 2 3] last_fval_matches=1
+OUTFCN fmincon_stop ef=-1 it=3
+OUTFCN fminunc_stop ef=-1 it=3
+OUTFCN lsqnonlin_stop ef=-1 it=3
+OUTFCN fsolve_stop ef=-1 it=2
+OUTFCN fmincon_plots ef=1 same_result=1 new_figures=1
+OUTFCN lsqcurvefit_plots ef=1
+OUTFCN pso_stop ef=-1 it=5
+OUTFCN ga_stop ef=-1 generations=4
+OUTFCN ps_stop ef=-1 it=10
+ELAPSED test_outputfcn 5.140 s
+
+=================== test_milp ===================
+MILP M1_knapsack12 ef=1 f=-309 x=[1 1 1 1 0 1 0 0 0 0 0 0] | nodes=1 time=0.028s
+MILP M2_mixed_eq ef=1 f=-12 x=[0 6 0] | nodes=0 time=0.000s
+MILP M3_assignment5 ef=1 f=14 x=[3 6 12 20 24] | nodes=1 time=0.023s
+MILP M4_setcover ef=1 f=3 x=[5 15 20] | nodes=1 time=0.021s
+MILP M5_general_int ef=1 f=-4 x=[1 5 0 -5] | nodes=1 time=0.000s
+MILP M6_int_infeasible ef=-2
+MILP M7_unbounded ef=-3
+MILP M8_maxnodes ef=1 f=-309 nodes=1 gap=0%
+MILP M9_struct ef=1 f=-2 x=[2 0] | nodes=1 time=0.000s
+MILP M10_knapsack30 ef=1 f=-949 weight=759/759 | nodes=1 time=0.030s
+MILP M11_general15 ef=1 f=-206 gap=0.00% | nodes=1997 time=0.415s viol=0.0e+00
+MILP M12_general8 ef=1 f=-75 x=[1 6 0 0 0 0 6 6] | nodes=1 time=0.015s
+MILP M13_cuts f=-30/-30 ef=1/1 nodes none=1 basic=1 cuts=NaN (f* = -30)
+ELAPSED test_milp 0.686 s
+
+=================== test_simplex ===================
+SIMPLEX  0 ef= 1 f=-145.8985543 it=7
+SIMPLEX  1 ef=-3 f=NaN it=2
+SIMPLEX  2 ef=-3 f=NaN it=8
+SIMPLEX  3 ef= 1 f=-26.18976932 it=6
+SIMPLEX  4 ef= 1 f=0.7415316559 it=5
+SIMPLEX  5 ef= 1 f=-7.633559351 it=0
+SIMPLEX  6 ef= 1 f=-10.55077229 it=4
+SIMPLEX  7 ef=-2 f=NaN it=0
+SIMPLEX  8 ef= 1 f=-5.637391581 it=0
+SIMPLEX  9 ef= 1 f=-19.65754308 it=11
+SIMPLEX 10 ef= 1 f=-23.27266288 it=5
+SIMPLEX 11 ef= 1 f=12.3010484 it=3
+SIMPLEX 12 ef= 1 f=-28.01534281 it=6
+SIMPLEX 13 ef=-3 f=NaN it=3
+SIMPLEX 14 ef= 1 f=1.748099749 it=2
+SIMPLEX 15 ef= 1 f=1.706412547 it=3
+SIMPLEX 16 ef=-3 f=NaN it=7
+SIMPLEX 17 ef= 1 f=-65.80364174 it=0
+SIMPLEX 18 ef=-3 f=NaN it=0
+SIMPLEX 19 ef= 1 f=-87.72646057 it=7
+SIMPLEX 20 ef= 1 f=9.79759438 it=8
+SIMPLEX 21 ef= 1 f=-30.44377897 it=2
+SIMPLEX 22 ef=-3 f=NaN it=1
+SIMPLEX 23 ef=-3 f=NaN it=6
+SIMPLEX 24 ef=-3 f=NaN it=1
+SIMPLEX 25 ef= 1 f=-12.61724947 it=7
+SIMPLEX 26 ef=-3 f=NaN it=5
+SIMPLEX 27 ef=-2 f=NaN it=0
+SIMPLEX 28 ef= 1 f=-114.9842724 it=4
+SIMPLEX 29 ef= 1 f=7.270113667 it=2
+SIMPLEX 30 ef= 1 f=1.059693824 it=0
+SIMPLEX 31 ef= 1 f=-3.066278213 it=0
+SIMPLEX 32 ef=-3 f=NaN it=1
+SIMPLEX 33 ef= 1 f=-2.510757896 it=1
+SIMPLEX 34 ef= 1 f=-29.97451613 it=12
+SIMPLEX 35 ef=-3 f=NaN it=1
+SIMPLEX 36 ef= 1 f=-29.7884682 it=7
+SIMPLEX 37 ef=-2 f=NaN it=0
+SIMPLEX 38 ef=-3 f=NaN it=3
+SIMPLEX 39 ef=-3 f=NaN it=11
+SIMPLEX 40 ef= 1 f=-11.085678 it=2
+SIMPLEX 41 ef= 1 f=-14.52746345 it=3
+SIMPLEX 42 ef= 1 f=-25.72289264 it=3
+SIMPLEX 43 ef= 1 f=13.00475082 it=5
+SIMPLEX 44 ef=-3 f=NaN it=3
+SIMPLEX 45 ef= 1 f=-8.649036405 it=5
+SIMPLEX 46 ef=-3 f=NaN it=9
+SIMPLEX 47 ef=-2 f=NaN it=0
+SIMPLEX 48 ef= 1 f=-1.660078956 it=3
+SIMPLEX 49 ef=-3 f=NaN it=8
+SIMPLEX 50 ef=-3 f=NaN it=2
+SIMPLEX 51 ef= 1 f=-127.4187857 it=3
+SIMPLEX 52 ef=-3 f=NaN it=4
+SIMPLEX 53 ef= 1 f=-50.09889427 it=3
+SIMPLEX 54 ef= 1 f=1.745168343 it=3
+SIMPLEX 55 ef=-3 f=NaN it=0
+SIMPLEX 56 ef= 1 f=5.674352425 it=6
+SIMPLEX 57 ef=-2 f=NaN it=6
+SIMPLEX 58 ef=-3 f=NaN it=3
+SIMPLEX 59 ef= 1 f=-21.28428418 it=1
+ELAPSED test_simplex 0.194 s

@@ -1,0 +1,218 @@
+MatLivre 0.1.8 (e66a9f6), Linux x86-64   2026-11-15T13:06:12-03:00
+
+=================== test_fmincon ===================
+RESULT P1_rosen_disk ef=1 f=0.04567480874 x=[0.786415153 0.617698314] | it=13 fc=45 viol=0.00e+00 fo=3.11e-09 t=0.0355s
+RESULT P2_hs071_fd ef=1 f=17.01401729 x=[1 4.74299964 3.82114998 1.37940829] | it=7 fc=41 viol=3.91e-13 fo=1.55e-07 t=0.0218s
+LAMBDA P2_hs071 ineqnonlin 0.55229366 eqnonlin 0.16146856 lower [1.08787 1.54391e-11 1.83573e-11 1.49554e-10]
+RESULT P3_hs071_grad ef=1 f=17.01401729 x=[1 4.74299964 3.82114998 1.37940829] | it=7 fc=16 viol=3.27e-13 fo=5.75e-08 t=0.0182s
+RESULT P4_linear ef=1 f=0.8 x=[1.39999999 1.69999999] | it=2 fc=9 viol=0.00e+00 fo=2.68e-09 t=0.0055s
+LAMBDA P4_linear ineqlin [0.8 2.24822e-10 7.04359e-13]
+RESULT P5_bounds ef=1 f=0.04000000003 x=[0.8 0.639999992] | it=33 fc=109 viol=0.00e+00 fo=5.23e-10 t=0.0515s
+RESULT P6_circle_eq ef=1 f=-2 x=[-1 -1] | it=13 fc=49 viol=3.93e-12 fo=6.12e-09 t=0.0291s
+RESULT P7_eq_central ef=1 f=1.8950707 x=[-1.22474487 1.22474487] | it=5 fc=25 viol=0.00e+00 fo=4.78e-11 t=0.0122s
+RESULT P8_matrix_struct ef=1 f=5.386368797 x=[0.229524546 2.39184475 1.39184474 1.98678597] | it=8 fc=47 viol=0.00e+00 fo=6.01e-08 t=0.0252s
+SHAPE P8 [2 2]
+RESULT P9_infeasible ef=-2 viol=1
+--- iteration display (P1) ---
+
+ Iter  Func-count            Fval   Feasibility   Step Length     Norm of   First-order
+                                                                   step    optimality
+    0           3    1.000000e+00     0.000e+00
+    1           8    8.000012e-01     0.000e+00     1.000e-01   2.000e-01     8.000e+00
+    2          11    6.229657e-01     0.000e+00     1.000e+00   4.923e-02     1.850e+00
+    3          14    4.646194e-01     0.000e+00     1.000e+00   1.449e-01     3.867e+00
+    4          17    4.085567e-01     0.000e+00     1.000e+00   9.580e-02     5.635e+00
+    5          20    2.587373e-01     0.000e+00     1.000e+00   1.096e-01     1.205e+00
+    6          23    2.305922e-01     0.000e+00     1.000e+00   1.812e-01     6.840e+00
+    7          26    1.606865e-01     0.000e+00     1.000e+00   2.762e-02     5.079e-01
+    8          29    1.184428e-01     0.000e+00     1.000e+00   9.177e-02     6.644e-01
+    9          33    4.804318e-02     0.000e+00     1.000e+00   2.185e-01     1.677e-01
+   10          36    4.566789e-02     1.060e-04     1.000e+00   1.029e-02     8.397e-02
+   11          39    4.567720e-02     6.287e-08     1.000e+00   2.511e-04     5.062e-02
+   12          42    4.567481e-02     7.584e-09     1.000e+00   8.801e-05     1.800e-05
+   13          45    4.567481e-02     0.000e+00     1.000e+00   1.258e-08     3.106e-09
+ELAPSED test_fmincon 0.247 s
+
+=================== test_hs ===================
+HS HS6   ef= 1 f=6.222592167e-17 fstar=0 err=6.22e-17 it=9 fc=33 viol=4.5e-11
+HS HS7   ef= 1 f=-1.732050808 fstar=-1.732050808 err=2.19e-12 it=9 fc=35 viol=7.6e-12
+HS HS13  ef= 2 f=0.9999441329 fstar=1 err=5.59e-05 it=19 fc=126 viol=3.4e-12
+HS HS26  ef= 1 f=1.588426668e-10 fstar=0 err=1.59e-10 it=23 fc=114 viol=2.2e-09
+HS HS39  ef= 1 f=-1 fstar=-1 err=4.87e-12 it=13 fc=70 viol=3.5e-12
+HS HS40  ef= 1 f=-0.25 fstar=-0.25 err=3.80e-12 it=9 fc=50 viol=6.3e-12
+HS HS43  ef= 1 f=-44 fstar=-44 err=1.42e-14 it=10 fc=58 viol=0.0e+00
+HS HS65  ef= 1 f=0.9535288592 fstar=0.9535288567 err=2.54e-09 it=9 fc=41 viol=0.0e+00
+HS HS100 ef= 2 f=680.6300574 fstar=680.6300573 err=7.44e-08 it=21 fc=186 viol=0.0e+00
+TOTAL 0.407 s
+ELAPSED test_hs 0.417 s
+
+=================== test_qp ===================
+RESULT LP1_scipy_doc ef=1 f=-22 x=[10 -3] | it=3 viol=0.0e+00
+RESULT LP2_classic ef=1 f=-36 x=[2 6] | it=3 viol=0.0e+00
+LAMBDA LP2 ineqlin [0 1.5 1]
+RESULT LP3_eq_fixed ef=1 f=6 x=[3 2 1] | it=3 viol=0.0e+00
+RESULT LP4_infeasible ef=-2
+RESULT LP5_unbounded ef=-3
+RESULT LP6_30x20 ef=1 f=-9.533333333 x=[0 0.333333333 0.666666667 1 0] | it=14 viol=8.9e-16
+TIME LP6 0.0036
+RESULT QP1_doc ef=1 f=-8.222222222 x=[0.666666667 1.33333333] | it=7 viol=0.0e+00
+LAMBDA QP1 ineqlin [3.11111 0.444444 3.03997e-12]
+RESULT QP2_10var ef=1 f=-5.337730154 x=[-1 -1 -1 0.999999998 0.91383493] | it=8 viol=1.1e-16
+TIME QP2 0.0023
+RESULT QP3_nonconvex ef=-6
+RESULT QP4_struct ef=1 f=-5.5 x=[-8.79973366e-17 1 2] | it=6 viol=0.0e+00
+RESULT LSQLIN1_bounds ef=1 f=1.824074079 x=[0.5 0.5 0.499999983 0.5] | it=7 viol=0.0e+00
+RESULT LSQLIN2_lin ef=1 f=3.026431718 x=[0.921806167 0.921806167 -1.3722467 0.528634361] | it=6 viol=0.0e+00
+ELAPSED test_qp 0.027 s
+
+=================== test_fminunc ===================
+RESULT U1_rosen2 ef=1 f=2.814569e-11 err=1.06e-05 it=36 fc=138
+RESULT U2_rosen10 ef=1 f=7.283258e-10 err=1.72e-05 it=73 fc=946
+RESULT U3_rosen2_grad ef=1 f=7.996798e-13 err=1.64e-06 it=36 fc=46
+RESULT U4_beale ef=1 f=2.355682e-12 err=1.60e-06 it=15 fc=48
+RESULT U5_powell_singular ef=1 f=6.647265e-09 err=3.19e-03 it=33 fc=170
+RESULT U6_illcond_matrix ef=1 f=-5.941594e-01 err=4.04e-04 it=30 fc=403
+SHAPE U6 [2 3]
+RESULT U7_unbounded ef=-3 f=-1.19e+20
+ELAPSED test_fminunc 0.076 s
+
+=================== test_nls ===================
+RESULT N1_rosen_lsq ef=1 resnorm=1.13687236e-14 x=[0.999999893 0.999999787] | it=22 fc=69
+RESULT N2_rosen_bound ef=3 resnorm=0.25 x=[0.5 0.250000006] | it=15 fc=48
+LAMBDA N2 upper [1 0]
+RESULT N3_expfit ef=1 resnorm=1.621980673e-15 x=[2.49999999 1.29999996 0.399999989] | it=7 fc=32
+RESULT N4_lorentz_jac ef=2 resnorm=0.001872314661 x=[2.96148628 1.99872496 0.487946539] | it=9 fc=20
+RESULT N5_brown_dennis ef=2 resnorm=85822.20187 x=[-11.594013 13.2034771 -0.403463515 0.236773806] | it=260 fc=1360
+RESULT S1_exp2 ef=1 |F|=7.52e-09 x=[0.567143287 0.567143287] | it=8 fc=27
+RESULT S2_powell_badscale ef=2 |F|=5.41e-14 x=[1.09815933e-05 9.10614674] | it=42 fc=123
+RESULT S3_matrix_cuberoot ef=1 |F|=5.14e-11 x=[-0.129148906 1.29032357 0.860215714 1.16117466] | it=7 fc=36
+CHECK S3 [1 2;3 4]
+RESULT S4_noroot ef=-2 x=1.09e-07 f=1
+RESULT S5_broyden10_jac ef=1 |F|=1.06e-09 x=[-0.570722132 -0.68180695 -0.702210076 -0.70551063] | it=4 fc=9
+ELAPSED test_nls 0.373 s
+
+=================== test_global ===================
+GLOBAL rastrigin2  particleswarm 19/20 (median f 3.32e-11,  1407 evals, 0.63s) | ga 20/20 (median f 2.03e-08,  4175 evals, 1.58s)
+GLOBAL rastrigin5  particleswarm  5/20 (median f 0.995,  6673 evals, 2.73s) | ga 16/20 (median f 4.99e-06, 10393 evals, 4.42s)
+GLOBAL ackley10    particleswarm 18/20 (median f 1e-07, 16315 evals, 8.78s) | ga 18/20 (median f 0.000103, 64130 evals, 30.08s)
+RESULT pso_hybrid f=2.49e-14 ef=1 hybridflag=1
+RESULT ga_nonlcon success 20/20
+RESULT ga_nonlcon_hybrid f=1.00000000 x=[1 1] ef=0
+RESULT ga_integer success 20/20
+RESULT ga_mixedint_eq x=[1.05 3 -0.05] f=0.2150 ef=1 (optimum x=[1.05 3 -0.05], f=0.2150)
+RESULT ps_rosen f=1.05e-07 x=[0.99968 0.99935] ef=1 fc=11904
+RESULT ps_linear f=0.800000 x=[1.4 1.7] ef=2 (optimum x=[1.4 1.7], f=0.8)
+RESULT ps_nonlcon f=-2.000000 x=[-1 -1] ef=1 (optimum x=[-1 -1], f=-2)
+RESULT multistart f=-1.031628 ef=1 runs=30 distinct minima=5
+RESULT globalsearch f=-1.031628 ef=1 runs=18 distinct minima=4
+RESULT multistart_lsqcurvefit resnorm=9.13e-18 x=[1.5 3;3 0.5] ef=1
+ELAPSED test_global 54.341 s
+
+=================== test_checkgradients ===================
+CHECKGRAD rosen_ok valid=1 maxerr=5.0e-08
+CHECKGRAD rosen_bad valid=0 maxerr=2 size=[2 1]
+CHECKGRAD jacobian_ok valid=1 maxerr=1.6e-08 size=[3 3]
+CHECKGRAD constraints_ok valid=[true true]
+
+Nonlinear inequality constraint derivatives:
+  Maximum relative difference between supplied and finite-difference derivatives = 0.
+  checkGradients succeeded: every relative difference is within Tolerance = 1e-06.
+
+Nonlinear equality constraint derivatives:
+  Maximum relative difference between supplied and finite-difference derivatives = 1.
+  Largest difference at element (3,1). checkGradients failed: Tolerance = 1e-06.
+CHECKGRAD constraints_bad valid=[true false] maxeq=1
+CHECKGRAD matrix_x0 valid=1
+ELAPSED test_checkgradients 0.011 s
+
+=================== test_outputfcn ===================
+OUTFCN fmincon_record ef=1 iterations=13 calls=16 states=[1 2 3] last_fval_matches=1
+OUTFCN fmincon_stop ef=-1 it=3
+OUTFCN fminunc_stop ef=-1 it=3
+OUTFCN lsqnonlin_stop ef=-1 it=3
+OUTFCN fsolve_stop ef=-1 it=3
+OUTFCN fmincon_plots ef=1 same_result=1 new_figures=1
+OUTFCN lsqcurvefit_plots ef=2
+OUTFCN pso_stop ef=-1 it=5
+OUTFCN ga_stop ef=-1 generations=4
+OUTFCN ps_stop ef=-1 it=10
+ELAPSED test_outputfcn 0.143 s
+
+=================== test_milp ===================
+MILP M1_knapsack12 ef=1 f=-309 x=[1 1 1 1 0 1 0 0 0 0 0 0] | nodes=1 time=0.006s
+MILP M2_mixed_eq ef=1 f=-12 x=[0 5.5 1] | nodes=1 time=0.000s
+MILP M3_assignment5 ef=1 f=14 x=[2 8 11 20 24] | nodes=1 time=0.002s
+MILP M4_setcover ef=1 f=3 x=[5 10 15] | nodes=1 time=0.002s
+MILP M5_general_int ef=1 f=-4 x=[-5 -3 0 5] | nodes=1 time=0.000s
+MILP M6_int_infeasible ef=-2
+MILP M7_unbounded ef=-3
+MILP M8_maxnodes ef=2 f=0 nodes=1 gap=3.09e+04%
+MILP M9_struct ef=1 f=-2 x=[1 1] | nodes=1 time=0.000s
+MILP M10_knapsack30 ef=1 f=-949 weight=759/759 | nodes=9 time=0.011s
+MILP M11_general15 ef=2 f=-206 gap=1.54% | nodes=2000 time=1.953s viol=0.0e+00
+MILP M12_general8 ef=1 f=-75 x=[1 6 0 0 0 0 6 6] | nodes=1 time=0.011s
+MILP M13_cuts f=-30/-30 ef=1/1 nodes none=5633 basic=1831 cuts=8 (f* = -30)
+ELAPSED test_milp 6.252 s
+
+=================== test_simplex ===================
+SIMPLEX  0 ef= 1 f=-145.8985543 it=13
+SIMPLEX  1 ef=-3 f=NaN it=3
+SIMPLEX  2 ef=-3 f=NaN it=6
+SIMPLEX  3 ef= 1 f=-26.18976932 it=14
+SIMPLEX  4 ef= 1 f=0.7415316559 it=9
+SIMPLEX  5 ef= 1 f=-7.633559351 it=6
+SIMPLEX  6 ef= 1 f=-10.55077229 it=4
+SIMPLEX  7 ef=-2 f=NaN it=3
+SIMPLEX  8 ef= 1 f=-5.637391581 it=6
+SIMPLEX  9 ef= 1 f=-19.65754308 it=22
+SIMPLEX 10 ef= 1 f=-23.27266288 it=7
+SIMPLEX 11 ef= 1 f=12.3010484 it=8
+SIMPLEX 12 ef= 1 f=-28.01534281 it=11
+SIMPLEX 13 ef=-3 f=NaN it=13
+SIMPLEX 14 ef= 1 f=1.748099749 it=6
+SIMPLEX 15 ef= 1 f=1.706412547 it=9
+SIMPLEX 16 ef=-3 f=NaN it=10
+SIMPLEX 17 ef= 1 f=-65.80364174 it=14
+SIMPLEX 18 ef=-3 f=NaN it=1
+SIMPLEX 19 ef= 1 f=-87.72646057 it=14
+SIMPLEX 20 ef= 1 f=9.79759438 it=10
+SIMPLEX 21 ef= 1 f=-30.44377897 it=6
+SIMPLEX 22 ef=-3 f=NaN it=2
+SIMPLEX 23 ef=-3 f=NaN it=16
+SIMPLEX 24 ef=-3 f=NaN it=3
+SIMPLEX 25 ef= 1 f=-12.61724947 it=7
+SIMPLEX 26 ef=-3 f=NaN it=6
+SIMPLEX 27 ef=-2 f=NaN it=9
+SIMPLEX 28 ef= 1 f=-114.9842724 it=14
+SIMPLEX 29 ef= 1 f=7.270113667 it=5
+SIMPLEX 30 ef= 1 f=1.059693824 it=2
+SIMPLEX 31 ef= 1 f=-3.066278213 it=3
+SIMPLEX 32 ef=-3 f=NaN it=3
+SIMPLEX 33 ef= 1 f=-2.510757896 it=2
+SIMPLEX 34 ef= 1 f=-29.97451613 it=12
+SIMPLEX 35 ef=-3 f=NaN it=2
+SIMPLEX 36 ef= 1 f=-29.7884682 it=8
+SIMPLEX 37 ef=-2 f=NaN it=5
+SIMPLEX 38 ef=-3 f=NaN it=5
+SIMPLEX 39 ef=-3 f=NaN it=10
+SIMPLEX 40 ef= 1 f=-11.085678 it=3
+SIMPLEX 41 ef= 1 f=-14.52746345 it=8
+SIMPLEX 42 ef= 1 f=-25.72289264 it=6
+SIMPLEX 43 ef= 1 f=13.00475082 it=9
+SIMPLEX 44 ef=-3 f=NaN it=2
+SIMPLEX 45 ef= 1 f=-8.649036405 it=7
+SIMPLEX 46 ef=-3 f=NaN it=11
+SIMPLEX 47 ef=-2 f=NaN it=7
+SIMPLEX 48 ef= 1 f=-1.660078956 it=4
+SIMPLEX 49 ef=-3 f=NaN it=10
+SIMPLEX 50 ef=-3 f=NaN it=3
+SIMPLEX 51 ef= 1 f=-127.4187857 it=12
+SIMPLEX 52 ef=-3 f=NaN it=3
+SIMPLEX 53 ef= 1 f=-50.09889427 it=9
+SIMPLEX 54 ef= 1 f=1.745168343 it=4
+SIMPLEX 55 ef=-3 f=NaN it=1
+SIMPLEX 56 ef= 1 f=5.674352425 it=10
+SIMPLEX 57 ef=-2 f=NaN it=9
+SIMPLEX 58 ef=-3 f=NaN it=4
+SIMPLEX 59 ef= 1 f=-21.28428418 it=9
+ELAPSED test_simplex 0.068 s
