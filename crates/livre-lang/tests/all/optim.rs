@@ -1,10 +1,13 @@
-//! Optimization Toolbox solvers (`linprog`, `optimoptions`).
+//! Optimization Toolbox solvers (`linprog`, `intlinprog`, `optimoptions`).
 //!
 //! Expected values come from MATLAB R2026b (the only release available to the author; linprog's
 //! default became HiGHS's dual simplex in R2024a, so only solutions, objective values and exit
 //! flags are compared, not iteration counts) and from problems with analytic optima.
 //! `data/optim_lp60.m` solves 60 random LPs (35 optimal, 5 infeasible, 20 unbounded);
-//! `data/optim_lp60_matlab.txt` is MATLAB's output for the same calls.
+//! `data/optim_lp60_matlab.txt` is MATLAB's output for the same calls. `data/optim_milp.m` runs 13
+//! MILPs (knapsacks, assignment, set cover, general integers, infeasible and unbounded cases);
+//! `data/optim_milp_matlab.txt` is MATLAB's output (intlinprog's default became HiGHS in R2024a,
+//! so node counts differ and the two deviations are listed in the test).
 
 use livre_lang::{Interpreter, OutputKind, Value};
 
@@ -171,4 +174,90 @@ fn optimoptions_forms() {
     close(&it, "m3", &[50.0], 0.0);
     let (_, out) = run("optimoptions('linprog', 'Display')");
     assert!(out.iter().any(|l| l.contains("name-value pairs")), "{out:?}");
+}
+
+/// `name ef=.. f=..` fields of the MILP lines printed by `data/optim_milp.m`.
+fn milp_lines(text: &str) -> Vec<(String, f64, Option<f64>)> {
+    text.lines()
+        .filter(|l| l.starts_with("MILP ") && !l.contains("M13_cuts"))
+        .map(|l| {
+            let name = l.split_whitespace().nth(1).unwrap().to_string();
+            let field = |k: &str| l.split(k).nth(1).and_then(|s| s.split_whitespace().next()).and_then(|s| s.parse::<f64>().ok());
+            (name, field(" ef=").unwrap(), field(" f="))
+        })
+        .collect()
+}
+
+#[test]
+fn intlinprog_matches_matlab() {
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data");
+    let src = std::fs::read_to_string(dir.join("optim_milp.m")).unwrap();
+    let want = milp_lines(&std::fs::read_to_string(dir.join("optim_milp_matlab.txt")).unwrap());
+    let (_, out) = run(&src);
+    no_errors(&out);
+    let text = out.concat();
+    let got = milp_lines(&text);
+    assert_eq!(got.len(), want.len(), "{text}");
+    for ((name, ef, f), (wname, wef, wf)) in got.iter().zip(&want) {
+        assert_eq!(name, wname);
+        match name.as_str() {
+            // MaxNodes = 1 from x0 = 0: MATLAB's presolve closes the gap at the root (exitflag 1,
+            // f = -309); without presolve the run stops at the limit with the x0 incumbent.
+            "M8_maxnodes" => assert_eq!((*ef, *f), (2.0, Some(0.0))),
+            // Stopped at MaxNodes = 2000 with the optimum as incumbent; MATLAB proves it optimal
+            // within 1997 nodes.
+            "M11_general15" => assert_eq!((*ef, *f), (2.0, *wf)),
+            _ => {
+                assert_eq!(ef, wef, "{name}");
+                match (f, wf) {
+                    (Some(f), Some(wf)) => assert!((f - wf).abs() <= 1e-6 * wf.abs().max(1.0), "{name}: {f} vs {wf}"),
+                    (None, None) => {}
+                    _ => panic!("{name}: {f:?} vs {wf:?}"),
+                }
+            }
+        }
+    }
+    // Root Gomory cuts: both settings reach the optimum f* = -30.
+    let m13 = text.lines().find(|l| l.contains("M13_cuts")).unwrap();
+    assert!(m13.contains("f=-30/-30 ef=1/1"), "{m13}");
+}
+
+#[test]
+fn intlinprog_full_solve_options_and_output_function() {
+    let (it, out) = run(
+        "o = optimoptions('intlinprog', 'Display', 'off');
+         m = 10; n = 15;
+         Am = mod((1:m)' * (1:n) * 13 + (1:m)', 17) - 5;
+         bm = 20 + mod((1:m)' * 7, 23);
+         cm = -(mod((1:n)' * 11, 9) + 1);
+         [x, f, ef, out] = intlinprog(cm, 1:n, Am, bm, [], [], zeros(n, 1), 10 * ones(n, 1), [], o);
+         viol = max(Am * x - bm); xint = max(abs(x - round(x))); gap = out.relativegap;
+         [~, fr, efr] = intlinprog(cm, 1:n, Am, bm, [], [], zeros(n, 1), 10 * ones(n, 1), [], optimoptions(o, 'BranchRule', 'reliability'));
+         [~, fm, efm] = intlinprog(cm, 1:n, Am, bm, [], [], zeros(n, 1), 10 * ones(n, 1), [], optimoptions(o, 'BranchRule', 'mostfractional', 'MaxNodes', 50));
+         stopper = @(x, ov, state) strcmp(state, 'iter') && ov.numnodes >= 3;
+         [~, ~, efs, outs] = intlinprog(cm, 1:n, Am, bm, [], [], zeros(n, 1), 10 * ones(n, 1), [], optimoptions(o, 'OutputFcn', stopper));
+         nodes_s = outs.numnodes;",
+    );
+    no_errors(&out);
+    // f* = -206 (MATLAB R2026b and HiGHS).
+    close(&it, "f", &[-206.0], 1e-12);
+    close(&it, "ef", &[1.0], 0.0);
+    assert!(num(&it, "viol")[0] <= 1e-9 && num(&it, "xint")[0] == 0.0 && num(&it, "gap")[0] <= 1e-2);
+    close(&it, "fr", &[-206.0], 1e-12);
+    close(&it, "efr", &[1.0], 0.0);
+    // MaxNodes stops with an integer feasible point (2) or none yet (0).
+    let efm = num(&it, "efm")[0];
+    assert!(efm == 2.0 || efm == 0.0, "{efm}");
+    // An output function that stops at the third node: exit flag 2 (incumbent) or -1 (none).
+    let efs = num(&it, "efs")[0];
+    assert!(efs == 2.0 || efs == -1.0, "{efs}");
+    close(&it, "nodes_s", &[3.0], 0.0);
+}
+
+#[test]
+fn intlinprog_argument_errors() {
+    let (_, out) = run("intlinprog([1; 1], 3, [1 1], 1)");
+    assert!(out.iter().any(|l| l.contains("INTCON must contain integers between 1 and 2")), "{out:?}");
+    let (_, out) = run("intlinprog([1; 1], 1, [1 1 1], 1)");
+    assert!(out.iter().any(|l| l.contains("A must have 2 columns")), "{out:?}");
 }

@@ -10,39 +10,11 @@
 //! interior-point path will come with `quadprog`.
 
 use super::simplex::{self, Rows, Status};
-use super::{display_level, getopt, Display};
+use super::{bounds, column, display_level, getopt, real_arg, Display};
 use crate::builtins::Ret;
-use crate::error::{rt, LangError};
+use crate::error::rt;
 use crate::interp::{Interpreter, OutputKind};
 use crate::value::*;
-
-type R<T> = Result<T, LangError>;
-
-/// A real double vector or matrix argument; empty for a missing or empty argument.
-fn real(v: Option<&Value>, name: &str) -> R<Matrix> {
-    match v {
-        None => Ok(Matrix::empty()),
-        Some(v) => {
-            let m = v.to_matrix().map_err(|_| LangError::new(format!("LINPROG requires {name} to be a real double array."), 0))?;
-            if m.im.as_ref().is_some_and(|im| im.iter().any(|&x| x != 0.0)) {
-                return rt(format!("LINPROG requires {name} to be real."));
-            }
-            Ok(m)
-        }
-    }
-}
-
-/// Bounds padded with `fill` to n entries (extra entries are ignored, as in MATLAB).
-fn bounds(m: &Matrix, n: usize, fill: f64) -> Vec<f64> {
-    let mut v: Vec<f64> = m.data.iter().copied().take(n).collect();
-    v.resize(n, fill);
-    v
-}
-
-fn column(v: Vec<f64>) -> Value {
-    let n = v.len();
-    Value::Num(Matrix::new(n, 1, v))
-}
 
 pub fn linprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     // Positional arguments or a problem structure.
@@ -61,12 +33,12 @@ pub fn linprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
             (0..8).map(|i| a.get(i).cloned()).collect()
         }
     };
-    let f = real(args[0].as_ref(), "f")?;
+    let f = real_arg(args[0].as_ref(), "LINPROG", "f")?;
     let n = f.numel();
     if n == 0 {
         return rt("LINPROG requires a nonempty objective vector f.");
     }
-    let mat = |i: usize, name: &str| real(args[i].as_ref(), name);
+    let mat = |i: usize, name: &str| real_arg(args[i].as_ref(), "LINPROG", name);
     let (am, bm, aeq, beq, lbm, ubm) = (mat(1, "A")?, mat(2, "b")?, mat(3, "Aeq")?, mat(4, "beq")?, mat(5, "lb")?, mat(6, "ub")?);
     let o = match &args[7] {
         Some(v) => super::options_arg(v)?,

@@ -9,6 +9,7 @@
 //! options object; the solvers read option names in either the optimoptions style
 //! (`MaxIterations`) or the optimset style (`MaxIter`).
 
+pub mod intlinprog;
 pub mod linprog;
 pub mod simplex;
 
@@ -20,14 +21,41 @@ use crate::value::*;
 
 type R<T> = Result<T, LangError>;
 
-pub const NAMES: &[&str] = &["linprog", "optimoptions"];
+pub const NAMES: &[&str] = &["intlinprog", "linprog", "optimoptions"];
 
 pub fn call(it: &mut Interpreter, name: &str, a: &[Value], nargout: usize) -> Ret {
     match name {
+        "intlinprog" => intlinprog::intlinprog(it, a, nargout),
         "linprog" => linprog::linprog(it, a, nargout),
         "optimoptions" => optimoptions(it, a),
         _ => Ok(None),
     }
+}
+
+/// A real double vector or matrix argument; empty for a missing or empty argument.
+pub(crate) fn real_arg(v: Option<&Value>, solver: &str, name: &str) -> R<Matrix> {
+    match v {
+        None => Ok(Matrix::empty()),
+        Some(v) => {
+            let m = v.to_matrix().map_err(|_| LangError::new(format!("{solver} requires {name} to be a real double array."), 0))?;
+            if m.im.as_ref().is_some_and(|im| im.iter().any(|&x| x != 0.0)) {
+                return rt(format!("{solver} requires {name} to be real."));
+            }
+            Ok(m)
+        }
+    }
+}
+
+/// Bounds padded with `fill` to n entries (extra entries are ignored, as in MATLAB).
+pub(crate) fn bounds(m: &Matrix, n: usize, fill: f64) -> Vec<f64> {
+    let mut v: Vec<f64> = m.data.iter().copied().take(n).collect();
+    v.resize(n, fill);
+    v
+}
+
+pub(crate) fn column(v: Vec<f64>) -> Value {
+    let n = v.len();
+    Value::Num(Matrix::new(n, 1, v))
 }
 
 /// The options argument of a solver: a structure from optimoptions or optimset, or [].

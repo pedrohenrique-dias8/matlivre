@@ -138,7 +138,8 @@ Symbolic Math Toolbox references and its status (1,889 implemented).
   and reflection-coefficient conversions, spectral estimates. Plan and known deviations:
   [`docs/signal-coverage-plan.md`](docs/signal-coverage-plan.md).
 - **Optimization Toolbox (in progress):** `linprog` (bounded dual simplex, with MATLAB's exit
-  flags and Lagrange multipliers) and `optimoptions`.
+  flags and Lagrange multipliers), `intlinprog` (branch and bound with warm-started nodes, root
+  Gomory cuts, pseudocost/reliability branching, output functions) and `optimoptions`.
 - **Symbolic Math:** exact arithmetic, `diff`, `int`, `limit`, `taylor`, `solve`, `dsolve` for
   linear equations, Laplace, Z, Fourier and Hilbert transforms, `simplify`, symbolic matrices
   and canonical forms, abstract functions and DAE structure tools, `subexpr`, `symmatrix`,

@@ -1,0 +1,13 @@
+MILP M1_knapsack12 ef=1 f=-309 x=[1 1 1 1 0 1 0 0 0 0 0 0] | nodes=1 time=0.028s
+MILP M2_mixed_eq ef=1 f=-12 x=[0 6 0] | nodes=0 time=0.000s
+MILP M3_assignment5 ef=1 f=14 x=[3 6 12 20 24] | nodes=1 time=0.023s
+MILP M4_setcover ef=1 f=3 x=[5 15 20] | nodes=1 time=0.021s
+MILP M5_general_int ef=1 f=-4 x=[1 5 0 -5] | nodes=1 time=0.000s
+MILP M6_int_infeasible ef=-2
+MILP M7_unbounded ef=-3
+MILP M8_maxnodes ef=1 f=-309 nodes=1 gap=0%
+MILP M9_struct ef=1 f=-2 x=[2 0] | nodes=1 time=0.000s
+MILP M10_knapsack30 ef=1 f=-949 weight=759/759 | nodes=1 time=0.030s
+MILP M11_general15 ef=1 f=-206 gap=0.00% | nodes=1997 time=0.415s viol=0.0e+00
+MILP M12_general8 ef=1 f=-75 x=[1 6 0 0 0 0 6 6] | nodes=1 time=0.015s
+MILP M13_cuts f=-30/-30 ef=1/1 nodes none=1 basic=1 cuts=NaN (f* = -30)

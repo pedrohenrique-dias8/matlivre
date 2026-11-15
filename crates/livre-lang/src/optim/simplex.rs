@@ -47,6 +47,12 @@ pub struct Solution {
     /// Reduced costs of [x; s].
     pub d: Vec<f64>,
     pub iterations: usize,
+    /// Values of [x; s], and the bounds used for them (infinite bounds replaced by +-BIG).
+    pub xz: Vec<f64>,
+    pub la: Vec<f64>,
+    pub ua: Vec<f64>,
+    /// Columns sitting at an artificial (+-BIG) bound.
+    pub atart: Vec<bool>,
 }
 
 /// The constraint rows [A; Aeq] in column-major order, `rows` x `n`.
@@ -366,16 +372,40 @@ pub fn solve(c: &[f64], rows: &Rows, rhs: &[f64], lb: &[f64], ub: &[f64], opts: 
             (vec![f64::NAN; m], vec![f64::NAN; nn], vec![f64::NAN; nn])
         }
     };
-    if status == Status::Optimal {
-        let at_artificial = (0..nn).any(|j| {
-            let art = (stat[j] == -1 && !lz[j].is_finite()) || (stat[j] == 1 && !uz[j].is_finite()) || (isb[j] && xz[j].abs() >= 0.5 * big);
-            art && (d[j].abs() > told || isb[j])
-        });
-        if at_artificial {
-            status = Status::Unbounded; // optimum of the boxed LP lies on the artificial box
+    let atart: Vec<bool> =
+        (0..nn).map(|j| (stat[j] == -1 && !lz[j].is_finite()) || (stat[j] == 1 && !uz[j].is_finite()) || (isb[j] && xz[j].abs() >= 0.5 * big)).collect();
+    if status == Status::Optimal && (0..nn).any(|j| atart[j] && (d[j].abs() > told || isb[j])) {
+        status = Status::Unbounded; // optimum of the boxed LP lies on the artificial box
+    }
+    Solution { x: xz[..n].to_vec(), status, basis: Basis { b: basic, stat }, y, d, iterations: it, xz, la, ua, atart }
+}
+
+/// Rows `which` (positions in the basis) of inv(B) [M, I], the simplex tableau: one entry per
+/// column of [x; s]. None when the basis is singular.
+pub fn tableau_rows(rows: &Rows, n: usize, basic: &[usize], which: &[usize]) -> Option<Vec<Vec<f64>>> {
+    let m = rows.rows;
+    let mut mb = vec![0.0; m * m];
+    for (k, &j) in basic.iter().enumerate() {
+        if j < n {
+            mb[k * m..(k + 1) * m].copy_from_slice(&rows.data[j * m..(j + 1) * m]);
+        } else {
+            mb[k * m + (j - n)] = 1.0;
         }
     }
-    Solution { x: xz[..n].to_vec(), status, basis: Basis { b: basic, stat }, y, d, iterations: it }
+    let lu = Lu::factor(m, mb)?;
+    Some(
+        which
+            .iter()
+            .map(|&r| {
+                let mut rho = vec![0.0; m];
+                rho[r] = 1.0;
+                lu.solve_t(&mut rho);
+                (0..n + m)
+                    .map(|j| if j < n { rows.data[j * m..(j + 1) * m].iter().zip(&rho).map(|(a, b)| a * b).sum() } else { rho[j - n] })
+                    .collect()
+            })
+            .collect(),
+    )
 }
 
 #[cfg(test)]

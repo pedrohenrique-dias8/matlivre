@@ -2273,7 +2273,7 @@ fn user_stop(it: &mut Interpreter, quiet: bool, outs: Vec<Value>) -> Vec<Value> 
 }
 
 /// The `OutputFcn` and `PlotFcns` of an fzero, fminbnd or fminsearch call.
-struct OptimHooks {
+pub(crate) struct OptimHooks {
     outs: Vec<Value>,
     plots: Vec<Value>,
     fig: Option<Value>,
@@ -2288,17 +2288,17 @@ fn fn_list(v: Option<&Value>) -> Vec<Value> {
 }
 
 impl OptimHooks {
-    fn new(o: Option<&StructArray>) -> Self {
-        OptimHooks { outs: fn_list(opt(o, "OutputFcn")), plots: fn_list(opt(o, "PlotFcns")), fig: None }
+    pub(crate) fn new(o: Option<&StructArray>) -> Self {
+        OptimHooks { outs: fn_list(opt(o, "OutputFcn")), plots: fn_list(opt(o, "PlotFcns").or_else(|| opt(o, "PlotFcn"))), fig: None }
     }
 
-    fn active(&self) -> bool {
+    pub(crate) fn active(&self) -> bool {
         !self.outs.is_empty() || !self.plots.is_empty()
     }
 
     /// Calls every output function, then every plot function, each plot function in its own
     /// row of the "Optimization Plot Function" figure. True when one of them asks to stop.
-    fn call(&mut self, it: &mut Interpreter, x: &Value, values: &Value, state: &str) -> R<bool> {
+    pub(crate) fn call(&mut self, it: &mut Interpreter, x: &Value, values: &Value, state: &str) -> R<bool> {
         let mut stop = false;
         for f in self.outs.clone() {
             stop |= hook_call(it, &f, x, values, state)?;
