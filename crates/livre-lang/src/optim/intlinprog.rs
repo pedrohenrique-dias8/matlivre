@@ -5,8 +5,12 @@
 //! (CutGeneration 'basic' = 5 rounds, 'intermediate' = 10, 'advanced' = 20, 'none'; at most 20
 //! cuts per round). Search: depth-first dives until an integer-feasible point is found, then best
 //! bound (NodeSelection 'minobj'), or depth-first throughout ('mininfeas'). Branching variable:
-//! BranchRule 'maxfun' (default here), 'reliability' (pseudocost product rule with strong
-//! branching on up to 8 unreliable candidates), 'maxpscost' or 'mostfractional'. When the
+//! BranchRule 'maxfun' (default here: largest |f(j)| among the fractional variables; it needed the
+//! fewest nodes on the benchmark sets), 'reliability' (MATLAB's default: pseudocost product
+//! score, strong branching on up to 10 candidates with fewer than 4 observations, lookahead 4; a
+//! side found infeasible by strong branching fixes the variable, and the children inherit their
+//! strong-branching LP values as bounds), 'maxpscost' (pseudocosts only; variables without
+//! observations get the average pseudocost) or 'mostfractional'. When the
 //! objective can only take integer values, nodes whose bound rounds up to the incumbent are
 //! pruned. A rounding heuristic tries the rounded LP point at every node, and diving heuristics
 //! (fractional, and guided by the incumbent) run at the root and every 50 nodes within a budget
@@ -528,7 +532,10 @@ fn opt_values(u: f64, nodes: usize, nfeas: usize, gap: f64, phase: &str) -> Valu
 struct Node {
     lb: Vec<f64>,
     ub: Vec<f64>,
+    /// Lower bound on the node's LP value (the parent's LP value, or the child's own value when
+    /// strong branching computed it) and the parent's LP value, for the pseudocosts.
     bound: f64,
+    parent: f64,
     depth: usize,
     /// Branching that created the node: variable (or usize::MAX at the root), direction
     /// (0 down, 1 up) and distance moved.
@@ -757,7 +764,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     if u.is_finite() {
         rc_fix(&isint, &mut glb, &mut gub, &rootlp_sol.basis.stat, &rootlp_sol.d, allowance(u, rootz));
     }
-    let mut nodes = vec![Node { lb: glb.clone(), ub: gub.clone(), bound: rootz, depth: 0, var: usize::MAX, dir: 0, dist: 0.0, basis: rootlp_sol.basis.clone() }];
+    let mut nodes = vec![Node { lb: glb.clone(), ub: gub.clone(), bound: rootz, parent: rootz, depth: 0, var: usize::MAX, dir: 0, dist: 0.0, basis: rootlp_sol.basis.clone() }];
     let rootlp_sol = Some(rootlp_sol);
     let mut pc = vec![[0.0f64; 2]; n];
     let mut pcn = vec![[0usize; 2]; n];
@@ -773,7 +780,6 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     let dfs_always = nsel == "mininfeas" || nsel == "depthfirst";
     let dive_on = heuristics != "none" && heuristics != "round";
     let (mut ndives, mut dive_lps) = (0usize, 0usize);
-    let avg_f = intcon.iter().map(|&j| c[j].abs()).sum::<f64>() / (intcon.len().max(1) as f64) + f64::EPSILON;
     while !nodes.is_empty() && !userstop {
         // depth-first until the first incumbent, best bound afterwards (ties to the deeper node)
         let k = if !u.is_finite() || dfs_always {
@@ -800,7 +806,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
             if let Some(NodeLp { x: xn, basis: nbasis, d: nd }) = solved {
                 let fn_ = lp.obj(&xn);
                 if node.var != usize::MAX && node.dist > 0.0 {
-                    pc[node.var][node.dir] += (fn_ - node.bound).max(0.0) / node.dist;
+                    pc[node.var][node.dir] += (fn_ - node.parent).max(0.0) / node.dist;
                     pcn[node.var][node.dir] += 1;
                 }
                 if !prune(fn_, u, agap, rgap, objint) {
@@ -841,38 +847,94 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                     } else {
                         let fl: Vec<f64> = frac.iter().map(|&j| xn[j] - xn[j].floor()).collect();
                         let fr: Vec<f64> = frac.iter().map(|&j| (xn[j] - xn[j].round()).abs()).collect();
+                        let mut child_bound = [fn_, fn_];
+                        let mut child_dead = [false, false];
+                        let mut node_dead = false;
                         let pick = match brule.as_str() {
                             "mostfractional" => argbest(fl.iter().map(|f| f * (1.0 - f)), true),
                             "maxfun" => argbest(frac.iter().zip(&fr).map(|(&j, f)| c[j].abs() * (1.0 + f)), true),
                             _ => {
-                                if brule == "reliability" {
-                                    let mut unrel: Vec<usize> = (0..frac.len()).filter(|&q| pcn[frac[q]][0].min(pcn[frac[q]][1]) < 2).collect();
-                                    if unrel.len() > 8 {
-                                        unrel.sort_by(|&p, &q| (fl[p] - 0.5).abs().partial_cmp(&(fl[q] - 0.5).abs()).unwrap_or(std::cmp::Ordering::Equal));
-                                        unrel.truncate(8);
+                                // pseudocosts; a variable without observations in a direction gets
+                                // the average over the variables that have them
+                                let avg = |dir: usize| {
+                                    let (sum, k) = (0..n).filter(|&j| pcn[j][dir] > 0).fold((0.0, 0usize), |(s, k), j| (s + pc[j][dir] / pcn[j][dir] as f64, k + 1));
+                                    if k > 0 {
+                                        sum / k as f64
+                                    } else {
+                                        1.0
                                     }
-                                    for q in unrel {
-                                        let vq = frac[q];
-                                        let mut u1 = node.ub.clone();
-                                        u1[vq] = xn[vq].floor();
-                                        let mut l2 = node.lb.clone();
-                                        l2[vq] = xn[vq].ceil();
-                                        let pen = 1e6 * (1.0 + fn_.abs());
-                                        let gd = node_lp(&lp, &node.lb, &u1, &nbasis).map(|r| (lp.obj(&r.x) - fn_).max(0.0)).unwrap_or(pen);
-                                        let gu = node_lp(&lp, &l2, &node.ub, &nbasis).map(|r| (lp.obj(&r.x) - fn_).max(0.0)).unwrap_or(pen);
-                                        pc[vq][0] += gd / fl[q].max(1e-9);
-                                        pcn[vq][0] += 1;
-                                        pc[vq][1] += gu / (1.0 - fl[q]).max(1e-9);
-                                        pcn[vq][1] += 1;
-                                    }
-                                }
-                                let score = |q: usize| {
+                                };
+                                let (avg_d, avg_u) = (avg(0), avg(1));
+                                let pscore = |q: usize| {
                                     let j = frac[q];
-                                    let qd = if pcn[j][0] == 0 { c[j].abs() + avg_f } else { pc[j][0] / pcn[j][0] as f64 };
-                                    let qu = if pcn[j][1] == 0 { c[j].abs() + avg_f } else { pc[j][1] / pcn[j][1] as f64 };
+                                    let qd = if pcn[j][0] == 0 { avg_d } else { pc[j][0] / pcn[j][0] as f64 };
+                                    let qu = if pcn[j][1] == 0 { avg_u } else { pc[j][1] / pcn[j][1] as f64 };
                                     (qd * fl[q]).max(1e-6) * (qu * (1.0 - fl[q])).max(1e-6)
                                 };
-                                argbest((0..frac.len()).map(score), true)
+                                let mut order: Vec<usize> = (0..frac.len()).collect();
+                                let ps: Vec<f64> = order.iter().map(|&q| pscore(q)).collect();
+                                order.sort_by(|&p, &q| ps[q].partial_cmp(&ps[p]).unwrap_or(std::cmp::Ordering::Equal));
+                                let mut best = (order[0], ps[order[0]], None::<([f64; 2], [bool; 2])>);
+                                if brule == "reliability" {
+                                    // strong branching on candidates whose pseudocosts have fewer than
+                                    // RELIABLE observations in a direction (at most 10 per node), in
+                                    // order of pseudocost score; stop after LOOKAHEAD candidates
+                                    // without a better score
+                                    const RELIABLE: usize = 4;
+                                    const LOOKAHEAD: usize = 4;
+                                    const MAXSB: usize = 10;
+                                    let (mut since, mut strong) = (0usize, 0usize);
+                                    for &q in &order {
+                                        let j = frac[q];
+                                        let mut info = None;
+                                        let score = if pcn[j][0].min(pcn[j][1]) >= RELIABLE || strong >= MAXSB {
+                                            ps[q]
+                                        } else {
+                                            strong += 1;
+                                            let mut u1 = node.ub.clone();
+                                            u1[j] = xn[j].floor();
+                                            let mut l2 = node.lb.clone();
+                                            l2[j] = xn[j].ceil();
+                                            let rd = node_lp(&lp, &node.lb, &u1, &nbasis).map(|r| lp.obj(&r.x));
+                                            let ru = node_lp(&lp, &l2, &node.ub, &nbasis).map(|r| lp.obj(&r.x));
+                                            if rd.is_none() && ru.is_none() {
+                                                node_dead = true; // both children infeasible
+                                                break;
+                                            }
+                                            if let Some(z) = rd {
+                                                pc[j][0] += (z - fn_).max(0.0) / fl[q].max(1e-9);
+                                                pcn[j][0] += 1;
+                                            }
+                                            if let Some(z) = ru {
+                                                pc[j][1] += (z - fn_).max(0.0) / (1.0 - fl[q]).max(1e-9);
+                                                pcn[j][1] += 1;
+                                            }
+                                            info = Some(([rd.unwrap_or(f64::INFINITY), ru.unwrap_or(f64::INFINITY)], [rd.is_none(), ru.is_none()]));
+                                            if rd.is_none() || ru.is_none() {
+                                                f64::INFINITY // one side is infeasible: branching fixes the variable
+                                            } else {
+                                                (rd.unwrap() - fn_).max(1e-6) * (ru.unwrap() - fn_).max(1e-6)
+                                            }
+                                        };
+                                        if score > best.1 || info.is_some() && q == best.0 {
+                                            best = (q, score, info);
+                                            since = 0;
+                                        } else {
+                                            since += 1;
+                                            if since >= LOOKAHEAD {
+                                                break;
+                                            }
+                                        }
+                                        if score == f64::INFINITY {
+                                            break;
+                                        }
+                                    }
+                                }
+                                if let Some((b, d)) = best.2 {
+                                    child_bound = [b[0].max(fn_), b[1].max(fn_)];
+                                    child_dead = d;
+                                }
+                                best.0
                             }
                         };
                         let v = frac[pick];
@@ -886,6 +948,9 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                         // last, so depth-first search takes it first
                         let order = if xv - xv.floor() >= 0.5 { [1, 0] } else { [0, 1] };
                         for dir in order {
+                            if node_dead || child_dead[dir] {
+                                continue;
+                            }
                             let (mut nl, mut nu) = (sl.clone(), su.clone());
                             let dist = if dir == 0 {
                                 nu[v] = xv.floor();
@@ -897,7 +962,7 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
                             if nl[v] > nu[v] || !propagate(&lp, &isint, &mut nl, &mut nu) {
                                 continue; // infeasible child
                             }
-                            nodes.push(Node { lb: nl, ub: nu, bound: fn_, depth: node.depth + 1, var: v, dir, dist, basis: nbasis.clone() });
+                            nodes.push(Node { lb: nl, ub: nu, bound: child_bound[dir], parent: fn_, depth: node.depth + 1, var: v, dir, dist, basis: nbasis.clone() });
                         }
                     }
                 }
