@@ -9,6 +9,7 @@
 //! options object; the solvers read option names in either the optimoptions style
 //! (`MaxIterations`) or the optimset style (`MaxIter`).
 
+mod cuts;
 pub mod intlinprog;
 pub mod linprog;
 pub mod simplex;

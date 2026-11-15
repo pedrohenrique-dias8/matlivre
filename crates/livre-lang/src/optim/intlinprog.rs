@@ -14,7 +14,8 @@
 //! globally from the root LP whenever the incumbent improves). Presolve (IntegerPreprocess
 //! 'basic', the default; 'none' keeps only bound propagation) works on rows and bounds: fixed
 //! variables, empty, singleton and redundant rows, continuous and integer bound propagation and
-//! coefficient tightening of binaries. Cuts only at the root.
+//! coefficient tightening of binaries. Cuts only at the root: Gomory mixed-integer and c-MIR
+//! (`cuts.rs`), selected by efficacy without near-parallel duplicates.
 //!
 //! exitflag: 1 optimal (gap within tolerance), 2 stopped with an integer feasible point, 0
 //! stopped without one, -1 stopped by an output function before a feasible point, -2
@@ -27,6 +28,7 @@
 //! propagation; Ch. 10, reduced-cost fixing).
 //! Clean room: no MathWorks code.
 
+use super::cuts;
 use super::simplex::{self, Basis, Rows, Solution, Status};
 use super::{bounds, column, display_level, getopt, real_arg, Display};
 use crate::builtins::Ret;
@@ -611,7 +613,10 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     }
     let rootlp = lp.obj(&root.x);
 
-    // ---- Gomory mixed-integer cuts at the root
+    // ---- cuts at the root: Gomory mixed-integer and c-MIR cuts, the most efficacious
+    //      non-parallel ones (at most 40 per round)
+    let base_rows = cuts::le_rows(&lp.a, &lp.b, &lp.aeq, &lp.beq);
+    let base_rows_ineq = lp.a.len();
     let rounds = match cutmode.as_str() {
         "none" => 0,
         "basic" => 5,
@@ -621,7 +626,10 @@ pub fn intlinprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
     let mut ncuts = 0usize;
     let mut stall = 0;
     for _ in 0..rounds {
-        let cuts = gmi_cuts(&lp, &root, &isint, 20);
+        let mut cands = gmi_cuts(&lp, &root, &isint, 20);
+        let xr = &root.x;
+        cands.extend(cuts::mir_cuts(&base_rows, &isint, &glb, &gub, xr));
+        let cuts = cuts::select(cands, xr, &lp.a[base_rows_ineq..], 40);
         if cuts.is_empty() {
             break;
         }
