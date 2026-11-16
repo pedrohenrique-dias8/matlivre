@@ -40,9 +40,15 @@ fn cases_under(dir: &Path, out: &mut Vec<PathBuf>) {
 /// Removes `<a href="...">` and `</a>`: `diary` records MATLAB's hyperlinks as markup, which a
 /// command window shows as plain (bold) text.
 fn strip_links(s: &str) -> String {
+    // MATLAB writes both `<a href="...">` and `<a href = "...">`
     let mut out = String::with_capacity(s.len());
     let mut rest = s;
-    while let Some(i) = rest.find("<a href=") {
+    loop {
+        let i = match (rest.find("<a href="), rest.find("<a href =")) {
+            (Some(a), Some(b)) => a.min(b),
+            (Some(a), None) | (None, Some(a)) => a,
+            (None, None) => break,
+        };
         out.push_str(&rest[..i]);
         match rest[i..].find('>') {
             Some(j) => rest = &rest[i + j + 1..],

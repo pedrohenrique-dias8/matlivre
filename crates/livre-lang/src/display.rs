@@ -590,6 +590,25 @@ pub fn display_value_cw(name: &str, v: &Value, f: NumFormat) -> Option<String> {
             let body = disp_value(v, f);
             Some(format!("\n{name} =\n\n{}\n", wrap_columns(body.trim_end_matches('\n'), m.cols())))
         }
+        // text, logical, empty and cell values, laid out as MATLAB's command window shows them
+        // (continuation lines of text with line breaks are aligned past the quote)
+        Value::Num(m) if !m.sparse && m.is_2d() && m.kind == Kind::Char && m.rows() == 1 && m.cols() > 0 => {
+            Some(format!("\n{name} =\n\n    '{}'\n", m.to_string_lossy().replace('\n', "\n     ")))
+        }
+        Value::Num(m) if !m.sparse && m.is_2d() && m.is_empty() => {
+            if m.dims == [0, 0] && m.kind == Kind::Double {
+                return Some(format!("\n{name} =\n\n     []\n"));
+            }
+            let word = if matches!(m.kind, Kind::Char | Kind::Logical) { "array" } else { shape_word(&m.dims) };
+            Some(format!("\n{name} =\n\n  {} empty {} {word}\n", nd::size_text(&m.dims), m.kind.name()))
+        }
+        Value::Num(m) if !m.sparse && m.is_2d() && m.kind == Kind::Logical => {
+            let header = if m.is_scalar() { "logical".to_string() } else { format!("{} logical array", nd::size_text(&m.dims)) };
+            Some(format!("\n{name} =\n\n  {header}\n\n{}\n", matrix_body(m, f, name).trim_end_matches('\n')))
+        }
+        Value::Cell(c) if c.dims.len() == 2 && !c.data.is_empty() => {
+            Some(format!("\n{name} =\n\n  {} cell array\n\n{}\n", nd::size_text(&c.dims), cell_body(c, f).trim_end_matches('\n')))
+        }
         Value::Object(o) if o.class.name == "digitalFilter" => crate::signal::digfilt::object_text(o).map(|t| format!("
 {name} = 
 
