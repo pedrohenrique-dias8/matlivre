@@ -5,36 +5,16 @@
     "computer": "PCWIN64",
     "recorded": "2026-11-16"
   },
-  "log": "",
+  "log": "\nOptimal solution found.\n\n",
   "error": {
-    "identifier": "optim:linprog:X0NotAccepted",
-    "message": "LINPROG(f,A,b,Aeq,beq,LB,UB,X0) does not accept X0. Use LINPROG(f,A,b,Aeq,beq,LB,UB) instead."
+    "identifier": "",
+    "message": ""
   },
   "lastwarn": {
     "message": "",
     "identifier": ""
   },
   "variables": {
-    "e": {
-      "class": "double",
-      "size": [
-        1,
-        1
-      ],
-      "value": {
-        "kind": "numeric",
-        "class": "double",
-        "sparse": false,
-        "size": [
-          1,
-          1
-        ],
-        "real": [
-          "3ff0000000000000"
-        ]
-      },
-      "display": "\ne =\n\n     1\n\n"
-    },
     "ep": {
       "class": "double",
       "size": [
@@ -55,7 +35,7 @@
       },
       "display": "\nep =\n\n     1\n\n"
     },
-    "f": {
+    "f3": {
       "class": "double",
       "size": [
         1,
@@ -70,10 +50,10 @@
           1
         ],
         "real": [
-          "c042000000000000"
+          "4004000000000000"
         ]
       },
-      "display": "\nf =\n\n   -36\n\n"
+      "display": "\nf3 =\n\n    2.5000\n\n"
     },
     "fp": {
       "class": "double",
@@ -95,155 +75,7 @@
       },
       "display": "\nfp =\n\n   -36\n\n"
     },
-    "p": {
-      "class": "struct",
-      "size": [
-        1,
-        1
-      ],
-      "value": {
-        "kind": "struct",
-        "size": [
-          1,
-          1
-        ],
-        "fields": [
-          "f",
-          "Aineq",
-          "bineq",
-          "Aeq",
-          "beq",
-          "lb",
-          "ub",
-          "solver",
-          "options"
-        ],
-        "elements": [
-          {
-            "f": {
-              "kind": "numeric",
-              "class": "double",
-              "sparse": false,
-              "size": [
-                2,
-                1
-              ],
-              "real": [
-                "c008000000000000",
-                "c014000000000000"
-              ]
-            },
-            "Aineq": {
-              "kind": "numeric",
-              "class": "double",
-              "sparse": false,
-              "size": [
-                3,
-                2
-              ],
-              "real": [
-                "3ff0000000000000",
-                "0000000000000000",
-                "4008000000000000",
-                "0000000000000000",
-                "4000000000000000",
-                "4000000000000000"
-              ]
-            },
-            "bineq": {
-              "kind": "numeric",
-              "class": "double",
-              "sparse": false,
-              "size": [
-                3,
-                1
-              ],
-              "real": [
-                "4010000000000000",
-                "4028000000000000",
-                "4032000000000000"
-              ]
-            },
-            "Aeq": {
-              "kind": "numeric",
-              "class": "double",
-              "sparse": false,
-              "size": [
-                0,
-                0
-              ],
-              "real": []
-            },
-            "beq": {
-              "kind": "numeric",
-              "class": "double",
-              "sparse": false,
-              "size": [
-                0,
-                0
-              ],
-              "real": []
-            },
-            "lb": {
-              "kind": "numeric",
-              "class": "double",
-              "sparse": false,
-              "size": [
-                2,
-                1
-              ],
-              "real": [
-                "0000000000000000",
-                "0000000000000000"
-              ]
-            },
-            "ub": {
-              "kind": "numeric",
-              "class": "double",
-              "sparse": false,
-              "size": [
-                0,
-                0
-              ],
-              "real": []
-            },
-            "solver": {
-              "kind": "char",
-              "size": [
-                1,
-                7
-              ],
-              "rows": [
-                "linprog"
-              ]
-            },
-            "options": {
-              "kind": "object",
-              "class": "optim.options.Linprog",
-              "size": [
-                1,
-                1
-              ],
-              "text": "<Unrecognized function or variable 'v'.>"
-            }
-          }
-        ]
-      },
-      "display": "\np = \n\n  <a href=\"matlab:helpPopup('struct')\" style=\"font-weight:bold\">struct</a> with fields:\n\n          f: [2×1 double]\n      Aineq: [3×2 double]\n      bineq: [3×1 double]\n        Aeq: []\n        beq: []\n         lb: [2×1 double]\n         ub: []\n     solver: 'linprog'\n    options: [1×1 optim.options.Linprog]\n\n"
-    },
-    "r": {
-      "class": "function_handle",
-      "size": [
-        1,
-        1
-      ],
-      "value": {
-        "kind": "function_handle",
-        "text": "@(v)round(v*1e8)/1e8+0"
-      },
-      "display": "\nr =\n\n  <a href=\"matlab:helpPopup('function_handle')\" style=\"font-weight:bold\">function_handle</a> with value:\n\n    @(v)round(v*1e8)/1e8+0\n\n"
-    },
-    "x": {
+    "x3": {
       "class": "double",
       "size": [
         2,
@@ -258,11 +90,11 @@
           1
         ],
         "real": [
-          "4000000000000000",
-          "4018000000000000"
+          "3ff8000000000000",
+          "3fe0000000000000"
         ]
       },
-      "display": "\nx =\n\n     2\n     6\n\n"
+      "display": "\nx3 =\n\n    1.5000\n    0.5000\n\n"
     },
     "xp": {
       "class": "double",
