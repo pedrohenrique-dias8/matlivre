@@ -1,0 +1,393 @@
+{
+  "header": {
+    "release": "2026b",
+    "version": "26.2.0.3433840 (R2026b) Update 1",
+    "computer": "PCWIN64",
+    "recorded": "2026-11-16"
+  },
+  "log": "",
+  "error": {
+    "identifier": "",
+    "message": ""
+  },
+  "lastwarn": {
+    "message": "",
+    "identifier": ""
+  },
+  "variables": {
+    "eqlin": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "4000000000000000"
+        ]
+      },
+      "display": "\neqlin =\n\n     2\n\n"
+    },
+    "eqlin2": {
+      "class": "double",
+      "size": [
+        0,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          0,
+          1
+        ],
+        "real": []
+      },
+      "display": "\neqlin2 =\n\n  0×1 empty <a href=\"matlab:helpPopup('double')\" style=\"font-weight:bold\">double</a> column vector\n\n"
+    },
+    "fo_small": {
+      "class": "logical",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "logical",
+        "size": [
+          1,
+          1
+        ],
+        "data": 1
+      },
+      "display": "\nfo_small =\n\n  <a href=\"matlab:helpPopup('logical')\" style=\"font-weight:bold\">logical</a>\n\n   1\n\n"
+    },
+    "ineq3": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "0000000000000000"
+        ]
+      },
+      "display": "\nineq3 =\n\n     0\n\n"
+    },
+    "ineqlin": {
+      "class": "double",
+      "size": [
+        3,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          3,
+          1
+        ],
+        "real": [
+          "0000000000000000",
+          "3ff8000000000000",
+          "3ff0000000000000"
+        ]
+      },
+      "display": "\nineqlin =\n\n         0\n    1.5000\n    1.0000\n\n"
+    },
+    "lam_fields": {
+      "class": "cell",
+      "size": [
+        1,
+        5
+      ],
+      "value": {
+        "kind": "cell",
+        "size": [
+          1,
+          5
+        ],
+        "items": [
+          {
+            "kind": "char",
+            "size": [
+              1,
+              5
+            ],
+            "rows": [
+              "lower"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              5
+            ],
+            "rows": [
+              "upper"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              5
+            ],
+            "rows": [
+              "eqlin"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              12
+            ],
+            "rows": [
+              "ineqlinLower"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              7
+            ],
+            "rows": [
+              "ineqlin"
+            ]
+          }
+        ]
+      },
+      "display": "\nlam_fields =\n\n  1×5 <a href=\"matlab:helpPopup('cell')\" style=\"font-weight:bold\">cell</a> array\n\n    {'lower'}    {'upper'}    {'eqlin'}    {'ineqlinLower'}    {'ineqlin'}\n\n"
+    },
+    "lower": {
+      "class": "double",
+      "size": [
+        2,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          2,
+          1
+        ],
+        "real": [
+          "3ff0000000000000",
+          "0000000000000000"
+        ]
+      },
+      "display": "\nlower =\n\n     1\n     0\n\n"
+    },
+    "lower2": {
+      "class": "double",
+      "size": [
+        2,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          2,
+          1
+        ],
+        "real": [
+          "0000000000000000",
+          "0000000000000000"
+        ]
+      },
+      "display": "\nlower2 =\n\n     0\n     0\n\n"
+    },
+    "lower4": {
+      "class": "double",
+      "size": [
+        2,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          2,
+          1
+        ],
+        "real": [
+          "0000000000000000",
+          "3ff0000000000000"
+        ]
+      },
+      "display": "\nlower4 =\n\n     0\n     1\n\n"
+    },
+    "out_fields": {
+      "class": "cell",
+      "size": [
+        1,
+        5
+      ],
+      "value": {
+        "kind": "cell",
+        "size": [
+          1,
+          5
+        ],
+        "items": [
+          {
+            "kind": "char",
+            "size": [
+              1,
+              10
+            ],
+            "rows": [
+              "iterations"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              15
+            ],
+            "rows": [
+              "constrviolation"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              7
+            ],
+            "rows": [
+              "message"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              9
+            ],
+            "rows": [
+              "algorithm"
+            ]
+          },
+          {
+            "kind": "char",
+            "size": [
+              1,
+              13
+            ],
+            "rows": [
+              "firstorderopt"
+            ]
+          }
+        ]
+      },
+      "display": "\nout_fields =\n\n  1×5 <a href=\"matlab:helpPopup('cell')\" style=\"font-weight:bold\">cell</a> array\n\n    {'iterations'}    {'constrviolation'}    {'message'}    {'algorithm'}    {'firstorderopt'}\n\n"
+    },
+    "upper": {
+      "class": "double",
+      "size": [
+        2,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          2,
+          1
+        ],
+        "real": [
+          "0000000000000000",
+          "0000000000000000"
+        ]
+      },
+      "display": "\nupper =\n\n     0\n     0\n\n"
+    },
+    "upper2": {
+      "class": "double",
+      "size": [
+        2,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          2,
+          1
+        ],
+        "real": [
+          "0000000000000000",
+          "0000000000000000"
+        ]
+      },
+      "display": "\nupper2 =\n\n     0\n     0\n\n"
+    },
+    "upper4": {
+      "class": "double",
+      "size": [
+        2,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          2,
+          1
+        ],
+        "real": [
+          "3ff0000000000000",
+          "0000000000000000"
+        ]
+      },
+      "display": "\nupper4 =\n\n     1\n     0\n\n"
+    },
+    "viol_small": {
+      "class": "logical",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "logical",
+        "size": [
+          1,
+          1
+        ],
+        "data": 1
+      },
+      "display": "\nviol_small =\n\n  <a href=\"matlab:helpPopup('logical')\" style=\"font-weight:bold\">logical</a>\n\n   1\n\n"
+    }
+  },
+  "figures": [],
+  "nfigures": 0
+}

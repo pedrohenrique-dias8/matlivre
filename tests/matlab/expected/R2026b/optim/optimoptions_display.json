@@ -1,0 +1,55 @@
+{
+  "header": {
+    "release": "2026b",
+    "version": "26.2.0.3433840 (R2026b) Update 1",
+    "computer": "PCWIN64",
+    "recorded": "2026-11-16"
+  },
+  "log": "\no = \n\n  <a href=\"matlab: helpPopup linprog\" style=\"font-weight:bold\">linprog</a> options:\n\n   Options used by current <strong>Algorithm</strong> ('dual-simplex-highs'):\n   (<a href = \"matlab: helpview('optim','choose_algorithm');\">Other available algorithms</a>: 'interior-point', 'interior-point-legacy')\n\n   <strong>Set properties:</strong>\n    No properties.\n\n   <strong>Default properties:</strong>\n              Algorithm: 'dual-simplex-highs'\n    ConstraintTolerance: 1.0000e-07\n                Display: 'final'\n          MaxIterations: 2.1475e+09\n                MaxTime: Inf sec\n    OptimalityTolerance: 1.0000e-07\n\n\no2 = \n\n  <a href=\"matlab: helpPopup linprog\" style=\"font-weight:bold\">linprog</a> options:\n\n   Options used by current <strong>Algorithm</strong> ('dual-simplex-highs'):\n   (<a href = \"matlab: helpview('optim','choose_algorithm');\">Other available algorithms</a>: 'interior-point', 'interior-point-legacy')\n\n   <strong>Set properties:</strong>\n                Display: 'off'\n          MaxIterations: 50\n\n   <strong>Default properties:</strong>\n              Algorithm: 'dual-simplex-highs'\n    ConstraintTolerance: 1.0000e-07\n                MaxTime: Inf sec\n    OptimalityTolerance: 1.0000e-07\n\n",
+  "error": {
+    "identifier": "",
+    "message": ""
+  },
+  "lastwarn": {
+    "message": "",
+    "identifier": ""
+  },
+  "variables": {
+    "o": {
+      "class": "optim.options.Linprog",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "object",
+        "class": "optim.options.Linprog",
+        "size": [
+          1,
+          1
+        ],
+        "text": "<Unrecognized function or variable 'v'.>"
+      },
+      "display": "\no = \n\n  <a href=\"matlab: helpPopup linprog\" style=\"font-weight:bold\">linprog</a> options:\n\n   Options used by current <strong>Algorithm</strong> ('dual-simplex-highs'):\n   (<a href = \"matlab: helpview('optim','choose_algorithm');\">Other available algorithms</a>: 'interior-point', 'interior-point-legacy')\n\n   <strong>Set properties:</strong>\n    No properties.\n\n   <strong>Default properties:</strong>\n              Algorithm: 'dual-simplex-highs'\n    ConstraintTolerance: 1.0000e-07\n                Display: 'final'\n          MaxIterations: 2.1475e+09\n                MaxTime: Inf sec\n    OptimalityTolerance: 1.0000e-07\n\n"
+    },
+    "o2": {
+      "class": "optim.options.Linprog",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "object",
+        "class": "optim.options.Linprog",
+        "size": [
+          1,
+          1
+        ],
+        "text": "<Unrecognized function or variable 'v'.>"
+      },
+      "display": "\no2 = \n\n  <a href=\"matlab: helpPopup linprog\" style=\"font-weight:bold\">linprog</a> options:\n\n   Options used by current <strong>Algorithm</strong> ('dual-simplex-highs'):\n   (<a href = \"matlab: helpview('optim','choose_algorithm');\">Other available algorithms</a>: 'interior-point', 'interior-point-legacy')\n\n   <strong>Set properties:</strong>\n                Display: 'off'\n          MaxIterations: 50\n\n   <strong>Default properties:</strong>\n              Algorithm: 'dual-simplex-highs'\n    ConstraintTolerance: 1.0000e-07\n                MaxTime: Inf sec\n    OptimalityTolerance: 1.0000e-07\n\n"
+    }
+  },
+  "figures": [],
+  "nfigures": 0
+}

@@ -14,7 +14,7 @@ pub mod simplex;
 
 use crate::builtins::{one, Ret};
 use crate::builtins_funfun::opt;
-use crate::error::{rt, LangError};
+use crate::error::{rt, rt_id, LangError};
 use crate::interp::Interpreter;
 use crate::value::*;
 
@@ -92,14 +92,54 @@ fn optimoptions(it: &mut Interpreter, a: &[Value]) -> Ret {
         }
         rest = &rest[1..];
     }
-    if rest.len() % 2 != 0 {
-        return rt("Options must be given as name-value pairs.");
-    }
+    let solver = match o.get("SolverName") {
+        Some(v) => v.text()?,
+        None => String::new(),
+    };
     for pair in rest.chunks(2) {
         if !pair[0].is_text() {
             return rt("Option names must be character vectors or strings.");
         }
-        o.set(&pair[0].text()?, pair[1].clone());
+        let name = pair[0].text()?;
+        if pair.len() < 2 {
+            return rt_id("optimlib:optimoptions:ParameterMissingValue", format!("Option '{name}' does not have a value."));
+        }
+        // option names are matched case-insensitively to the solver's list, when it is known
+        let canonical = match known_options(&solver) {
+            Some(list) => match list.iter().find(|n| n.eq_ignore_ascii_case(&name)) {
+                Some(n) => n.to_string(),
+                None => {
+                    let s = solver.to_uppercase();
+                    return rt_id(
+                        "optimlib:optimoptions:UnmatchedParameter",
+                        format!("'{name}' is not an option for {s}.\nA list of options can be found on the {s} <a href = \"matlab: helpview('optim','{solver}_opts');\">documentation page</a>."),
+                    );
+                }
+            },
+            None => name,
+        };
+        o.set(&canonical, pair[1].clone());
     }
     one(Value::Struct(o))
+}
+
+/// The options optimoptions accepts for a solver, with the optimset-style names it also maps
+/// (None for solvers whose list is not recorded yet: any name is then accepted).
+fn known_options(solver: &str) -> Option<&'static [&'static str]> {
+    match solver {
+        // linprog: the options of its algorithms, and the legacy names
+        "linprog" => Some(&[
+            "Algorithm",
+            "ConstraintTolerance",
+            "Display",
+            "MaxIterations",
+            "MaxTime",
+            "OptimalityTolerance",
+            "Preprocess",
+            "MaxIter",
+            "TolCon",
+            "TolFun",
+        ]),
+        _ => None,
+    }
 }

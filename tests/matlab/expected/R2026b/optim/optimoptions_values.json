@@ -1,0 +1,205 @@
+{
+  "header": {
+    "release": "2026b",
+    "version": "26.2.0.3433840 (R2026b) Update 1",
+    "computer": "PCWIN64",
+    "recorded": "2026-11-16"
+  },
+  "log": "",
+  "error": {
+    "identifier": "",
+    "message": ""
+  },
+  "lastwarn": {
+    "message": "",
+    "identifier": ""
+  },
+  "variables": {
+    "cls": {
+      "class": "char",
+      "size": [
+        1,
+        21
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          21
+        ],
+        "rows": [
+          "optim.options.Linprog"
+        ]
+      },
+      "display": "\ncls =\n\n    'optim.options.Linprog'\n\n"
+    },
+    "d": {
+      "class": "char",
+      "size": [
+        1,
+        3
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          3
+        ],
+        "rows": [
+          "off"
+        ]
+      },
+      "display": "\nd =\n\n    'off'\n\n"
+    },
+    "d2": {
+      "class": "char",
+      "size": [
+        1,
+        4
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          4
+        ],
+        "rows": [
+          "iter"
+        ]
+      },
+      "display": "\nd2 =\n\n    'iter'\n\n"
+    },
+    "d3": {
+      "class": "char",
+      "size": [
+        1,
+        5
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          5
+        ],
+        "rows": [
+          "final"
+        ]
+      },
+      "display": "\nd3 =\n\n    'final'\n\n"
+    },
+    "id1": {
+      "class": "char",
+      "size": [
+        1,
+        43
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          43
+        ],
+        "rows": [
+          "optimlib:optimoptions:ParameterMissingValue"
+        ]
+      },
+      "display": "\nid1 =\n\n    'optimlib:optimoptions:ParameterMissingValue'\n\n"
+    },
+    "id2": {
+      "class": "char",
+      "size": [
+        1,
+        40
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          40
+        ],
+        "rows": [
+          "optimlib:optimoptions:UnmatchedParameter"
+        ]
+      },
+      "display": "\nid2 =\n\n    'optimlib:optimoptions:UnmatchedParameter'\n\n"
+    },
+    "mi": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "4049000000000000"
+        ]
+      },
+      "display": "\nmi =\n\n    50\n\n"
+    },
+    "mi2": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "4049000000000000"
+        ]
+      },
+      "display": "\nmi2 =\n\n    50\n\n"
+    },
+    "msg1": {
+      "class": "char",
+      "size": [
+        1,
+        39
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          39
+        ],
+        "rows": [
+          "Option 'Display' does not have a value."
+        ]
+      },
+      "display": "\nmsg1 =\n\n    'Option 'Display' does not have a value.'\n\n"
+    },
+    "msg2": {
+      "class": "char",
+      "size": [
+        1,
+        167
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          167
+        ],
+        "rows": [
+          "'NotAnOption' is not an option for LINPROG.\nA list of options can be found on the LINPROG <a href = \"matlab: helpview('optim','linprog_opts');\">documentation page</a>."
+        ]
+      },
+      "display": "\nmsg2 =\n\n    ''NotAnOption' is not an option for LINPROG.\n     A list of options can be found on the LINPROG <a href = \"matlab: helpview('optim','linprog_opts');\">documentation page</a>.'\n\n"
+    }
+  },
+  "figures": [],
+  "nfigures": 0
+}

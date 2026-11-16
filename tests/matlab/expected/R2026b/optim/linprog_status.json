@@ -1,0 +1,221 @@
+{
+  "header": {
+    "release": "2026b",
+    "version": "26.2.0.3433840 (R2026b) Update 1",
+    "computer": "PCWIN64",
+    "recorded": "2026-11-16"
+  },
+  "log": "",
+  "error": {
+    "identifier": "",
+    "message": ""
+  },
+  "lastwarn": {
+    "message": "",
+    "identifier": ""
+  },
+  "variables": {
+    "e_bounds": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "c000000000000000"
+        ]
+      },
+      "display": "\ne_bounds =\n\n    -2\n\n"
+    },
+    "e_eq_infeasible": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "c000000000000000"
+        ]
+      },
+      "display": "\ne_eq_infeasible =\n\n    -2\n\n"
+    },
+    "e_infeasible": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "c000000000000000"
+        ]
+      },
+      "display": "\ne_infeasible =\n\n    -2\n\n"
+    },
+    "e_maxiter": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "3ff0000000000000"
+        ]
+      },
+      "display": "\ne_maxiter =\n\n     1\n\n"
+    },
+    "e_unbounded": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "c008000000000000"
+        ]
+      },
+      "display": "\ne_unbounded =\n\n    -3\n\n"
+    },
+    "fempty_infeasible": {
+      "class": "logical",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "logical",
+        "size": [
+          1,
+          1
+        ],
+        "data": 1
+      },
+      "display": "\nfempty_infeasible =\n\n  <a href=\"matlab:helpPopup('logical')\" style=\"font-weight:bold\">logical</a>\n\n   1\n\n"
+    },
+    "fempty_unbounded": {
+      "class": "logical",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "logical",
+        "size": [
+          1,
+          1
+        ],
+        "data": 1
+      },
+      "display": "\nfempty_unbounded =\n\n  <a href=\"matlab:helpPopup('logical')\" style=\"font-weight:bold\">logical</a>\n\n   1\n\n"
+    },
+    "it_maxiter": {
+      "class": "double",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          1,
+          1
+        ],
+        "real": [
+          "0000000000000000"
+        ]
+      },
+      "display": "\nit_maxiter =\n\n     0\n\n"
+    },
+    "xempty_bounds": {
+      "class": "logical",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "logical",
+        "size": [
+          1,
+          1
+        ],
+        "data": 1
+      },
+      "display": "\nxempty_bounds =\n\n  <a href=\"matlab:helpPopup('logical')\" style=\"font-weight:bold\">logical</a>\n\n   1\n\n"
+    },
+    "xempty_infeasible": {
+      "class": "logical",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "logical",
+        "size": [
+          1,
+          1
+        ],
+        "data": 1
+      },
+      "display": "\nxempty_infeasible =\n\n  <a href=\"matlab:helpPopup('logical')\" style=\"font-weight:bold\">logical</a>\n\n   1\n\n"
+    },
+    "xempty_unbounded": {
+      "class": "logical",
+      "size": [
+        1,
+        1
+      ],
+      "value": {
+        "kind": "logical",
+        "size": [
+          1,
+          1
+        ],
+        "data": 1
+      },
+      "display": "\nxempty_unbounded =\n\n  <a href=\"matlab:helpPopup('logical')\" style=\"font-weight:bold\">logical</a>\n\n   1\n\n"
+    }
+  },
+  "figures": [],
+  "nfigures": 0
+}

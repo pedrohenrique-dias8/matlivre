@@ -1,0 +1,273 @@
+{
+  "header": {
+    "release": "2026b",
+    "version": "26.2.0.3433840 (R2026b) Update 1",
+    "computer": "PCWIN64",
+    "recorded": "2026-11-16"
+  },
+  "log": "",
+  "error": {
+    "identifier": "",
+    "message": ""
+  },
+  "lastwarn": {
+    "message": "",
+    "identifier": ""
+  },
+  "variables": {
+    "id1": {
+      "class": "char",
+      "size": [
+        1,
+        33
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          33
+        ],
+        "rows": [
+          "optim:linprog:SizeMismatchColsOfA"
+        ]
+      },
+      "display": "\nid1 =\n\n    'optim:linprog:SizeMismatchColsOfA'\n\n"
+    },
+    "id2": {
+      "class": "char",
+      "size": [
+        1,
+        33
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          33
+        ],
+        "rows": [
+          "optim:linprog:SizeMismatchRowsOfA"
+        ]
+      },
+      "display": "\nid2 =\n\n    'optim:linprog:SizeMismatchRowsOfA'\n\n"
+    },
+    "id3": {
+      "class": "char",
+      "size": [
+        1,
+        35
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          35
+        ],
+        "rows": [
+          "optim:linprog:SizeMismatchColsOfAeq"
+        ]
+      },
+      "display": "\nid3 =\n\n    'optim:linprog:SizeMismatchColsOfAeq'\n\n"
+    },
+    "id4": {
+      "class": "char",
+      "size": [
+        1,
+        35
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          35
+        ],
+        "rows": [
+          "optim:linprog:SizeMismatchRowsOfAeq"
+        ]
+      },
+      "display": "\nid4 =\n\n    'optim:linprog:SizeMismatchRowsOfAeq'\n\n"
+    },
+    "id5": {
+      "class": "char",
+      "size": [
+        1,
+        29
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          29
+        ],
+        "rows": [
+          "optim:linprog:NotEnoughInputs"
+        ]
+      },
+      "display": "\nid5 =\n\n    'optim:linprog:NotEnoughInputs'\n\n"
+    },
+    "id6": {
+      "class": "char",
+      "size": [
+        1,
+        28
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          28
+        ],
+        "rows": [
+          "optim:linprog:NonDoubleInput"
+        ]
+      },
+      "display": "\nid6 =\n\n    'optim:linprog:NonDoubleInput'\n\n"
+    },
+    "id7": {
+      "class": "char",
+      "size": [
+        1,
+        27
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          27
+        ],
+        "rows": [
+          "optim:linprog:X0NotAccepted"
+        ]
+      },
+      "display": "\nid7 =\n\n    'optim:linprog:X0NotAccepted'\n\n"
+    },
+    "msg1": {
+      "class": "char",
+      "size": [
+        1,
+        75
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          75
+        ],
+        "rows": [
+          "The number of columns in A must be the same as the number of elements of f."
+        ]
+      },
+      "display": "\nmsg1 =\n\n    'The number of columns in A must be the same as the number of elements of f.'\n\n"
+    },
+    "msg2": {
+      "class": "char",
+      "size": [
+        1,
+        72
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          72
+        ],
+        "rows": [
+          "The number of rows in A must be the same as the number of elements of b."
+        ]
+      },
+      "display": "\nmsg2 =\n\n    'The number of rows in A must be the same as the number of elements of b.'\n\n"
+    },
+    "msg3": {
+      "class": "char",
+      "size": [
+        1,
+        77
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          77
+        ],
+        "rows": [
+          "The number of columns in Aeq must be the same as the number of elements of f."
+        ]
+      },
+      "display": "\nmsg3 =\n\n    'The number of columns in Aeq must be the same as the number of elements of f.'\n\n"
+    },
+    "msg4": {
+      "class": "char",
+      "size": [
+        1,
+        76
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          76
+        ],
+        "rows": [
+          "The number of rows in Aeq must be the same as the number of elements of beq."
+        ]
+      },
+      "display": "\nmsg4 =\n\n    'The number of rows in Aeq must be the same as the number of elements of beq.'\n\n"
+    },
+    "msg5": {
+      "class": "char",
+      "size": [
+        1,
+        48
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          48
+        ],
+        "rows": [
+          "LINPROG requires at least three input arguments."
+        ]
+      },
+      "display": "\nmsg5 =\n\n    'LINPROG requires at least three input arguments.'\n\n"
+    },
+    "msg6": {
+      "class": "char",
+      "size": [
+        1,
+        69
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          69
+        ],
+        "rows": [
+          "LINPROG requires the following inputs to be of data type double: 'f'."
+        ]
+      },
+      "display": "\nmsg6 =\n\n    'LINPROG requires the following inputs to be of data type double: 'f'.'\n\n"
+    },
+    "msg7": {
+      "class": "char",
+      "size": [
+        1,
+        93
+      ],
+      "value": {
+        "kind": "char",
+        "size": [
+          1,
+          93
+        ],
+        "rows": [
+          "LINPROG(f,A,b,Aeq,beq,LB,UB,X0) does not accept X0. Use LINPROG(f,A,b,Aeq,beq,LB,UB) instead."
+        ]
+      },
+      "display": "\nmsg7 =\n\n    'LINPROG(f,A,b,Aeq,beq,LB,UB,X0) does not accept X0. Use LINPROG(f,A,b,Aeq,beq,LB,UB) instead.'\n\n"
+    }
+  },
+  "figures": [],
+  "nfigures": 0
+}

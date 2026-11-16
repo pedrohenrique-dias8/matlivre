@@ -147,7 +147,7 @@ fn linprog_problem_struct_options_and_display() {
 #[test]
 fn linprog_errors_and_bounds() {
     let (_, out) = run("linprog([1; 1], [1 1 1], 1)");
-    assert!(out.iter().any(|l| l.contains("A must have 2 columns")), "{out:?}");
+    assert!(out.iter().any(|l| l.contains("The number of columns in A must be the same as the number of elements of f.")), "{out:?}");
     let (it, out) = run(
         "[x, f, e] = linprog([1; 1], [], [], [], [], [0; 2], [1; 1], optimoptions('linprog', 'Display', 'off'));
          ef_bounds = e;",
@@ -170,5 +170,5 @@ fn optimoptions_forms() {
     assert_eq!(it.get_var("s3").unwrap().text().unwrap(), "linprog");
     close(&it, "m3", &[50.0], 0.0);
     let (_, out) = run("optimoptions('linprog', 'Display')");
-    assert!(out.iter().any(|l| l.contains("name-value pairs")), "{out:?}");
+    assert!(out.iter().any(|l| l.contains("Option 'Display' does not have a value.")), "{out:?}");
 }

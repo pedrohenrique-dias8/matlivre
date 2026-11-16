@@ -12,7 +12,7 @@
 use super::simplex::{self, Rows, Status};
 use super::{display_level, getopt, Display};
 use crate::builtins::Ret;
-use crate::error::{rt, LangError};
+use crate::error::{rt, rt_id, LangError};
 use crate::interp::{Interpreter, OutputKind};
 use crate::value::*;
 
@@ -52,15 +52,25 @@ pub fn linprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
             vec![f("f"), f("Aineq"), f("bineq"), f("Aeq"), f("beq"), f("lb"), f("ub"), f("options")]
         }
         _ => {
-            if a.is_empty() {
-                return rt("Not enough input arguments.");
+            if a.len() < 3 {
+                return rt_id("optim:linprog:NotEnoughInputs", "LINPROG requires at least three input arguments.");
             }
-            if a.len() > 8 {
-                return rt("Too many input arguments.");
+            // linprog(f,A,b,Aeq,beq,lb,ub,x0[,options]): the old syntax with a start point
+            if a.len() > 8 || a.len() == 8 && !matches!(a[7], Value::Struct(_)) {
+                return rt_id("optim:linprog:X0NotAccepted", "LINPROG(f,A,b,Aeq,beq,LB,UB,X0) does not accept X0. Use LINPROG(f,A,b,Aeq,beq,LB,UB) instead.");
             }
             (0..8).map(|i| a.get(i).cloned()).collect()
         }
     };
+    // inputs that are not double
+    let names = ["f", "A", "b", "Aeq", "beq", "lb", "ub"];
+    let bad: Vec<String> = (0..7)
+        .filter(|&i| args[i].as_ref().is_some_and(|v| !matches!(v, Value::Sparse(_)) && !matches!(v, Value::Num(m) if m.kind == Kind::Double)))
+        .map(|i| format!("'{}'", names[i]))
+        .collect();
+    if !bad.is_empty() {
+        return rt_id("optim:linprog:NonDoubleInput", format!("LINPROG requires the following inputs to be of data type double: {}.", bad.join(", ")));
+    }
     let f = real(args[0].as_ref(), "f")?;
     let n = f.numel();
     if n == 0 {
@@ -75,14 +85,25 @@ pub fn linprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
 
     let ma = if am.is_empty() { 0 } else { am.rows() };
     let me = if aeq.is_empty() { 0 } else { aeq.rows() };
-    if ma > 0 && (am.cols() != n || bm.numel() != ma) || ma == 0 && bm.numel() != 0 {
-        return rt(format!("A must have {n} columns and as many rows as b has elements."));
+    if ma > 0 && am.cols() != n {
+        return rt_id("optim:linprog:SizeMismatchColsOfA", "The number of columns in A must be the same as the number of elements of f.");
     }
-    if me > 0 && (aeq.cols() != n || beq.numel() != me) || me == 0 && beq.numel() != 0 {
-        return rt(format!("Aeq must have {n} columns and as many rows as beq has elements."));
+    if bm.numel() != ma {
+        return rt_id("optim:linprog:SizeMismatchRowsOfA", "The number of rows in A must be the same as the number of elements of b.");
+    }
+    if me > 0 && aeq.cols() != n {
+        return rt_id("optim:linprog:SizeMismatchColsOfAeq", "The number of columns in Aeq must be the same as the number of elements of f.");
+    }
+    if beq.numel() != me {
+        return rt_id("optim:linprog:SizeMismatchRowsOfAeq", "The number of rows in Aeq must be the same as the number of elements of beq.");
     }
     let lb = bounds(&lbm, n, f64::NEG_INFINITY);
     let ub = bounds(&ubm, n, f64::INFINITY);
+    if let Some(v) = getopt(o, &["Display"]) {
+        if !matches!(v.text()?.to_lowercase().as_str(), "none" | "final" | "off" | "iter") {
+            return rt_id("optim:options:meta:EnumType:validate:InvalidEnum", "Invalid value for OPTIONS parameter Display:\n must be 'none',  'final',  'off',  or 'iter'.");
+        }
+    }
     let level = display_level(o, Display::Final)?;
     let maxit = match getopt(o, &["MaxIterations", "MaxIter"]) {
         Some(v) => v.scalar()?.max(0.0) as usize,
@@ -105,13 +126,13 @@ pub fn linprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
 
     let mut x = None;
     let (exitflag, message, iterations, mut lambda) = if lb.iter().zip(&ub).any(|(l, u)| l > u) {
-        (-2.0, "No feasible point: lb(i) > ub(i) for some i.".to_string(), 0, None)
+        (-2.0, "No feasible solution found.\n\nLinprog stopped because no point satisfies the constraints.".to_string(), 0, None)
     } else {
         let rowsref = Rows { data: &rows, rows: m, ineq: ma };
         let s = simplex::solve(&c, &rowsref, &rhs, &lb, &ub, simplex::Options { maxit, tol: 1e-9, basis: None });
         let (flag, msg) = match s.status {
             Status::Optimal => (1.0, "Optimal solution found.".to_string()),
-            Status::Infeasible => (-2.0, "No feasible point found: the constraints cannot be satisfied.".to_string()),
+            Status::Infeasible => (-2.0, "No feasible solution found.\n\nLinprog stopped because no point satisfies the constraints.".to_string()),
             Status::Unbounded => (-3.0, "Problem is unbounded: the objective decreases without limit along a feasible direction.".to_string()),
             Status::IterationLimit => (0.0, format!("Stopped: the number of iterations reached MaxIterations = {maxit}.")),
             Status::Singular => (-4.0, "Stopped: the basis matrix became singular.".to_string()),
@@ -168,10 +189,10 @@ pub fn linprog(it: &mut Interpreter, a: &[Value], nargout: usize) -> Ret {
 
     let (ineqlin, eqlin, lower, upper) = lambda.take().unwrap_or_else(|| (vec![0.0; ma], vec![0.0; me], vec![0.0; n], vec![0.0; n]));
     let mut lam = StructArray::scalar();
-    lam.set("ineqlin", column(ineqlin));
-    lam.set("eqlin", column(eqlin));
     lam.set("lower", column(lower));
     lam.set("upper", column(upper));
+    lam.set("eqlin", column(eqlin));
+    lam.set("ineqlin", column(ineqlin));
 
     let xv = match x {
         Some(x) => column(x),

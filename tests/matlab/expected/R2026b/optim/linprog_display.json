@@ -1,0 +1,39 @@
+{
+  "header": {
+    "release": "2026b",
+    "version": "26.2.0.3433840 (R2026b) Update 1",
+    "computer": "PCWIN64",
+    "recorded": "2026-11-16"
+  },
+  "log": "\nOptimal solution found.\n\n\n<a href = \"matlab: helpview('optim','lp_no_feas_solution','CSHelpWindow');\">No feasible solution found.</a>\n\nLinprog stopped because no point satisfies the constraints.\n\n",
+  "error": {
+    "identifier": "optim:options:meta:EnumType:validate:InvalidEnum",
+    "message": "Invalid value for OPTIONS parameter Display:\n must be 'none',  'final',  'off',  or 'iter'."
+  },
+  "lastwarn": {
+    "message": "",
+    "identifier": ""
+  },
+  "variables": {
+    "x": {
+      "class": "double",
+      "size": [
+        0,
+        0
+      ],
+      "value": {
+        "kind": "numeric",
+        "class": "double",
+        "sparse": false,
+        "size": [
+          0,
+          0
+        ],
+        "real": []
+      },
+      "display": "\nx =\n\n     []\n\n"
+    }
+  },
+  "figures": [],
+  "nfigures": 0
+}
